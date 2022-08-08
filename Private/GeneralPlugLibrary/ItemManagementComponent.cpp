@@ -35,21 +35,25 @@ void UItemManagementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 
 
-
 bool UItemManagementComponent::V1_AddActorByInst(AActor* ActorInstance)
 {
 	if (ActorInstance && !ActorInstance->IsPendingKill()) {
 		int32 Eleindex = InstanceContainer.Find(ActorInstance);
-		if (Eleindex >= 0) {
-			return true;
-		}
+		if (Eleindex >= 0) return false;
 		InstanceContainer.Emplace(ActorInstance);
+		ActorInstance->OnDestroyed.AddDynamic(this, &UItemManagementComponent::V1_OnDestroyed);
+		return true;
 	}
 	return false;
 }
 
 bool UItemManagementComponent::V1_RemoveActorByInst(AActor* ActorInstance)
 {
+	if (ActorInstance) {
+		InstanceContainer.Remove(ActorInstance);
+		ActorInstance->OnDestroyed.RemoveDynamic(this, &UItemManagementComponent::V1_OnDestroyed);
+		return true;
+	}
 	return false;
 }
 
@@ -60,6 +64,15 @@ TArray<AActor*> UItemManagementComponent::V1_GetActorInst()
 
 void UItemManagementComponent::V1_CleanActorInst()
 {
+	for (AActor* actor_var: InstanceContainer)
+		actor_var->OnDestroyed.RemoveDynamic(this, &UItemManagementComponent::V1_OnDestroyed);
+	InstanceContainer.Empty();
 }
 
+void UItemManagementComponent::V1_OnDestroyed(AActor* DestroyedActor)
+{
+	InstanceContainer.Remove(DestroyedActor);
+	DestroyedActor->OnDestroyed.RemoveDynamic(this, &UItemManagementComponent::V1_OnDestroyed);
+	TESTFUNC();
+}
 
