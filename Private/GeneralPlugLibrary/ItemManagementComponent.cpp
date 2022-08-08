@@ -2,6 +2,7 @@
 
 
 #include "GeneralPlugLibrary/ItemManagementComponent.h"
+#include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
 UItemManagementComponent::UItemManagementComponent()
@@ -32,10 +33,33 @@ void UItemManagementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	// ...
 }
 
+
+
+
 bool UItemManagementComponent::V1_AddActorByInst(AActor* ActorInstance)
 {
-	//int32 index;
-	InstanceContainer.Emplace(ActorInstance);
+	if (ActorInstance && !ActorInstance->IsPendingKill()) {
+		int32 Eleindex = InstanceContainer.Find(ActorInstance);
+		if (Eleindex >= 0) {
+			return true;
+		}
+		InstanceContainer.Emplace(ActorInstance);
+	}
 	return false;
 }
+
+bool UItemManagementComponent::V1_RemoveActorByInst(AActor* ActorInstance)
+{
+	return false;
+}
+
+TArray<AActor*> UItemManagementComponent::V1_GetActorInst()
+{
+	return InstanceContainer;
+}
+
+void UItemManagementComponent::V1_CleanActorInst()
+{
+}
+
 
