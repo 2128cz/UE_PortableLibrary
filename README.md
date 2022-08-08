@@ -13,7 +13,9 @@
 
 
 > 头文件多用途定义
+>
 > <code>#define CUSLANG 1</code> 可选移除默认格式，改为0后函数就会退回到本身的英文。（快速改语言🤪）
+>
 > <code>#define CUSNAPI 0</code> 如果直接移植报错与类相关，可能是由于API没有改为合适的项目， 可以改为1后在<code>Your project name</code>处填入自己工程的名字，全大写。
 
 -----
@@ -32,3 +34,4 @@
 >>> <code></code>
 >>> <code></code>
 >>> <code></code>
+
