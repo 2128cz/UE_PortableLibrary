@@ -12,7 +12,7 @@
 
 下一步移植2号实例类库，总计11个操作方法。
 
-进度13% - 4/31
+进度5% - 4/31个文件 - 1/37个目标
 
 -----
 
@@ -21,7 +21,7 @@
 
 > <code>GeneralPlugLibrary</code> 通用插件库
 >> <code>ItemManagementComponent</code> 物品管理组件
->>> <code></code>
+>>> <code>1_InstanceContainer</code> 实例容器，顺序1，只存放有效实例，当实例销毁时，容器也一同更新。
 
 
 
@@ -29,6 +29,6 @@
 
 ## 报错
 
-如果直接移植报错与类相关，可能是由于API没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建一个看看名字？
+如果直接移植报错与类相关，可能是由于API没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建文件一个看看名字？
 
-如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名，重启即可后重编译即可。
+如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，请立即重启并从引擎编译，确保可以看到c++内容时再打开文件；如果发现文件已经从图标变为文本，说明文件已经丢失了c++类，此时可以在编译完后打开并手动恢复先前的状态；想要预防这类事件，需要避免在引擎未开启时对源文件的改动，对脏文件保存也不行，可以等待引擎编译完成后再进行保存。
