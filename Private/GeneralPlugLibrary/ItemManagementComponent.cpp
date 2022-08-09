@@ -184,7 +184,7 @@ bool UItemManagementComponent::V2_GetAClassByIndex(int32 Index, UClass*& ActorCl
 	TArray<int32> values;
 	ClassContainer.GenerateValueArray(values);
 	ActorClass = keys[Index];
-	Number = values[Index];
+	Number = (int32*)values[Index];
 	return Index <= ClassContainer.Num() && Index >= 0;
 }
 
