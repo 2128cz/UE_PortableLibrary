@@ -1,18 +1,19 @@
 <a name="title"></a>
 # 通用操作库
 
-文件分为<code>Private</code>和<code>Public</code>两个文件夹；
-
-其中<code>Private</code>保存.cpp文件，<code>Public</code>保存.h文件，将这些文件夹直接合并到自己工程中即可使用。
+文件分为<code>Private</code>和<code>Public</code>两个文件夹；  
+其中<code>Private</code>保存.cpp文件，<code>Public</code>保存.h文件，将这些文件夹直接合并到自己工程中即可使用。  
 
 &nbsp;
 
-**小目录**
+**目录**
 > 1. [文件结构](#file)
->>  [物品管理组件代码解释](ItemManagementComponent)  
+>> [物品管理组件函数列表](ItemManagementComponent)
 > 1. [更新](#update)
 > 1. [已知错误](#knowbug)
 > 1. [解决报错](#error)
+
+点击[超链接](#file)即可跳转到其标题位置哦
 
 &nbsp;
 
@@ -22,62 +23,145 @@
 在<code>Private</code>和<code>Public</code>下都有同名的文件夹，每组同名文件夹内都是代表含有同一个功能的全部组件集合。
 
 > <code>GeneralPlugLibrary</code> *通用插件库*  
->> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 (Wait)  
+<a name="ItemManagementComponent"></a>
+>> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 💬  
 >>> 用于管理物品，完成背包，多形体碰撞，框选，布尔选择等  
->>>  &nbsp;
+>>>  &nbsp;  
 >>>  
->> <code>SimpleTraceComponent</code> 简易射线追踪 (shelve)  
+>> <code>SimpleTraceComponent</code> 简易射线追踪 🕑  
 >>> 用于翻越检测，多形体测量等方法  
->>>  &nbsp;
+>>>  &nbsp;  
 >>>  
->> <code>TimeStopComponent</code> 时停组件 (shelve)  
+>> <code>TimeStopComponent</code> 时停组件 🕑  
 >>> 用于不同的时停策略，暂停游戏，仅暂停部分物理，排除部分对象暂停物理，和引擎暂停类似。  
->>>  &nbsp;
+>>>  &nbsp;  
 >>>  
->> <code>VectorTrackingComponent</code> 角色矢量追踪 (shelve)  
->>> 用于检测角色运动轨迹，并在各个阶段产生回调事件。  
->>>  &nbsp;
+>> <code>VectorTrackingComponent</code> 矢量追踪 🕑  
+>>> 用于检测角色运动轨迹，并在各个阶段产生回调事件，但与移动组件自带的到达跳跃顶点的稍微有点不同。  
+>>>  &nbsp;  
+>>>  
+>> ItemManagementComponentNode.txt 
+>>> [ItemManagementComponent](#ItemManagementComponent)的所有节点，全选复制到蓝图中即可。  
+>>>  &nbsp;  
 >>>  
 
 &nbsp;
 
 <a name="ItemManagementComponent"></a>
-### 物品管理组件代码解释
+### 物品管理组件函数列表
+> <code>TESTFUNC</code> 测试事件，可重载无返回值  
 > <code>1_InstanceContainer</code> *1号实例容器*  
->> 只存放有效实例，当实例销毁时，容器也一同更新。  
->>  &nbsp;
+>> 设计用于纯实例对象加入或移除，依赖于运行中的实例;  
+>> 如果某实例在这之后被销毁，那么将会自动清理废引用，并产生一个发生销毁事件  
+>> <code>bool V1_AddActorByInst(AActor* ActorInstance)</code> 向容器1添加一个实例  
+>>  &nbsp;  
+>> <code>bool V1_RemoveActorByInst(AActor* ActorInstance)</code> 在容器1中移除一个对象实例  
+>>  &nbsp;  
+>> <code>TArray<AActor*> V1_GetActorInst()</code> 获取容器集合  
+>>  &nbsp;  
+>> <code>void V1_CleanActorInst()</code> 清空容器  
+>>  &nbsp;  
+>> <code>V1_WhenDestructionArrive</code> 容器1内发生融毁事件时  
+>> 定义句柄在`.h`文件的开头处，现在调用会崩溃，所以还没用。
+>>  &nbsp;  
+>  
+> <code>2_ClassContainer</code> *2号类容器*  
+>> 存储类对象，最好在存储后进行移除，否则有可能造成多次加入  
+>> 在添加时勾选“添加时移除实例”即可。针对有可能使用索引回调的控件事件，提供了按索引更新的函数
+>> <code>bool V2_AddAClassByInst(AActor* ActorInstance, bool AndDestroy)</code> 对象类容器2按实例添加  
+>>  &nbsp;  
+>> <code>bool V2_RemoveAClassByInst(AActor* ActorInstance)</code> 对象类容器2按实例移除  
+>>  &nbsp;  
+>> <code>void V2_AddAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类增加  
+>>  &nbsp;  
+>> <code>void V2_RemoveAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类减少  
+>>  &nbsp;  
+>> <code>void V2_SetAClassByClass(UClass* ActorClass, int32 Number, bool SetNumber)</code> 对象类容器2按类设置  
+>>  &nbsp;  
+>> <code>void V2_AddAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引增加  
+>>  &nbsp;  
+>> <code>void V2_RemoveAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引减少  
+>>  &nbsp;  
+>> <code>void V2_SetAClassByIndex(int32 Index, int32 Number, bool SetNumber)</code> 对象类容器2按索引设置  
+>>  &nbsp;  
+>> <code>bool V2_GetAClassByInst(AActor* ActorClass, int32& Number)</code> 按实例获取对象类容器2内容  
+>>  &nbsp;  
+>> <code>bool V2_GetAClassByClass(UClass* ActorClass, int32& Number)</code> 按类获取对象类容器2内容  
+>>  &nbsp;  
+>> <code>bool V2_GetAClassByIndex(int32 Index, UClass*& ActorClass, int32& Number)</code> 按索引获取对象类容器2内容  
+>>  &nbsp;  
+>  
+> <code>3_SingleContainer</code> 3号独有容器  
+>> 只存储一个对象，但可以用于有多形体碰撞的情况  
+>> 通过勾选“当插槽为空时添加”选项，限制加入的对象，并且在移除时，可以只针对插槽内的对象，也就是说可以和插槽1放置在一起使用。  
+>> <code>void V3_AddSingleInst(AActor* ActorClass, bool Focus)</code> 添加实例到独有容器3  
+>>  &nbsp;  
+>> <code>void V3_RemoveSingleInst(AActor* Actor)</code> 移除独有容器3的实例  
+>>  &nbsp;  
+>> <code>void V3_CleanSingleInst()</code> 清空独有容器3  
+>>  &nbsp;  
+>> <code>bool V3_GetSingleInst(AActor*& Actor)</code> 获取独有容器3的实例  
+>>  &nbsp;  
 >>  
-> <code>2_ClassContainer</code> *2号类容器*
->> 保存每个物品（类）的数量（值）。  
->>  &nbsp;
+> <code>4_BooleanContainer</code> 4号布尔容器  
+>> 一次性存储多个对象，可以用于玩家框选时的操作  
+>> 并且针对框选，框选组布尔，编组等操作封装了特有函数，其主要操作功能和插槽1基本类似。  
+>>  &nbsp;  
+>> <code>bool V4_AddActorInst(AActor* Actor)</code> 按实例添加到布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_RemoveActorInst(AActor* Actor)</code> 按实例移除布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_AddActorInstArray(TArray<AActor*> Actors)</code> 按实例组添加布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_RemoveActorInstArray(TArray<AActor*> Actors)</code> 按实例组移除布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_SetActorInstArray(TArray<AActor*> Actors)</code> 替换布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_FuncIntersection(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 交集操作布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_FuncUnion(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 并集操作布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_FuncDifference(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 差集操作布尔容器4  
+>>  &nbsp;  
+>> <code>TArray<AActor*> V4_GetActorArray()</code> 获取对象组布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_CleanContainer()</code> 清空布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_FuncIsArrayForTransfer(TArray<AActor*> Actors, float Threshold, TArray<AActor*>& ValidTrans, TArray<AActor*>& OtherTrans)</code> 校验输入是为传送布尔容器4  
+>>  &nbsp;  
+>> <code>bool V4_FuncIsActorForTransfer(AActor* Actor)</code> 校验传送对象布尔容器4  
+>>  &nbsp;  
 >>  
-> <code>3_SingleContainer</code> 3号独有容器
->> 捕捉唯一的一个对象，凑数用的。  
->>  &nbsp;
+> <code>5_ImmediatelyContainer</code> 5号即时容器  
+>> 用于检测时多对象内容发生变更的对象，并产生相应事件；  
+>> 此插槽可以用来保存对象，但并不固定，且没有清理计划，不建议从此处获取持久引用。  
+>> 主要功能和插槽4类似；独立使用时可以用分发器获取物品变动。  
+>> 如需和插槽4配合使用，可以使用特别封装的传送函数，将减少移动物品引用时变更分发器事件的发生；  
+>> 更新时如果需要忽略浏览的高亮事件作用于已选择的对象（指插槽4中的内容），勾选忽略选项即可。  
+>> 当前版本的传送后回收功能受插槽4的自动清理功能限制，会在不自动清理时不检查传送内容，导致回收站保持内容，本意是可以通过不清理来执行多次运算。  
+>>  &nbsp;  
+>> <code></code>
+>>  &nbsp;  
 >>  
-> <code>4_BooleanContainer</code> 4号布尔容器
->> 可以用在框选事件后，直接进行布尔运算。  
->>  &nbsp;
->>  
-> <code>5_ImmediatelyContainer</code> 5号即时容器
->> 用来作为回收站和筛选器。  
->>  &nbsp;
->>  
-> <code>6_MapContainer</code> 6号映射容器
->> 好像就是一个单纯的映射？等我回忆一下吧……  
->>  &nbsp;
+> <code>5_ImmediatelyContainer</code> 框选行为示例  
+>> <code></code>
+>>  &nbsp;  
 >>  
 
-之所以用数字做名字是因为函数有点多，名称不好区分，在搜索函数时也可以直接用数字找到函数，还挺方便的。
+之所以用数字做名字是因为函数有点多，名称不好区分，在搜索函数时也可以直接用数字找到函数，还挺方便的。  
+
+🔼[回到顶部](#title)
 
 &nbsp;
 
 <a name="update"></a>
 ## 更新
 
-当前属于测试版本V0.2B，但也可使用，从蓝图中移植了1号实例容器总计4个可调用基本操作方法，不过销毁后处理事件还未能正常工作。  
-下一步移植2号实例类库，总计11个操作方法。  
-进度5% - 4/31个文件 - 1/37个目标  
+物品管理组件移植完毕  
+但仅能通过编译，还没完全测试完毕。
+测试完成后会放在插件中。
+
+进度 - 16/32个方法 - 1/37个目标  
 
 &nbsp;
 
