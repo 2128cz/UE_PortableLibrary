@@ -8,22 +8,24 @@
 #include "ItemManagementComponent.generated.h"
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV1DestructionArrive, UItemManagementComponent, OnV1DestructionArrive, AActor*, DestroyedActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV1DestructionArriveSignature, AActor*, DestroyedActor);
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV4DestructionArrive, UItemManagementComponent, OnV4DestructionArrive, AActor*, DestroyedActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV4DestructionArriveSignature, AActor*, DestroyedActor);
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV4ChangeArrayMore, UItemManagementComponent, OnV4ChangeArrayMore, TArray<AActor*>, ChangeActors);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV4ChangeArrayMoreSignature, TArray<AActor*>, ChangeActors);
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV4ChangeArrayLess, UItemManagementComponent, OnV4ChangeArrayLess, TArray<AActor*>, ChangeActors);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV4ChangeArrayLessSignature, TArray<AActor*>, ChangeActors);
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV5ChangeArrayMore, UItemManagementComponent, OnV5ChangeArrayMore, TArray<AActor*>, ChangeActors);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV5ChangeArrayMoreSignature, TArray<AActor*>, ChangeActors);
 
 UDELEGATE(BlueprintCallable)
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FWhenV5ChangeArrayLess, UItemManagementComponent, OnV5ChangeArrayLess, TArray<AActor*>, ChangeActors);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV5ChangeArrayLessSignature, TArray<AActor*>, ChangeActors);
+
+
 
 UCLASS( Blueprintable, 
 	ClassGroup=(ItemManagement), 
@@ -32,10 +34,9 @@ UCLASS( Blueprintable,
 )
 class AUE5TESTPRO_API UItemManagementComponent : public UActorComponent
 {
-
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UItemManagementComponent();
 
@@ -46,6 +47,42 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|1_InstanceContainer",
+		meta = (DisplayName = "容器1内发生融毁事件时")
+	)
+		FOnV1DestructionArriveSignature OnV1DestructionArrive;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|4_InstanceContainer",
+		meta = (DisplayName = "容器4内发生融毁事件时")
+	)
+		FOnV4DestructionArriveSignature OnV4DestructionArrive;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|4_InstanceContainer",
+		meta = (DisplayName = "容器4内发生内容变更时_增加组")
+	)
+		FOnV4ChangeArrayMoreSignature OnV4ChangeArrayMore;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|4_InstanceContainer",
+		meta = (DisplayName = "容器4内发生内容变更时_减少组")
+	)
+		FOnV4ChangeArrayLessSignature OnV4ChangeArrayLess;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|5_ImmediatelyContainer",
+		meta = (DisplayName = "容器5内发生内容变更时_增加组")
+	)
+		FOnV5ChangeArrayMoreSignature OnV5ChangeArrayMore;
+
+	UPROPERTY(BlueprintAssignable,
+		Category = "ItemManagement|5_ImmediatelyContainer",
+		meta = (DisplayName = "容器5内发生内容变更时_减少组")
+	)
+		FOnV5ChangeArrayLessSignature OnV5ChangeArrayLess;
 
 	UFUNCTION()
 		void V1_OnDestroyed(AActor* DestroyedActor);
@@ -59,12 +96,6 @@ public:
 	//========================================================
 
 protected:
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|1_InstanceContainer",
-		meta = (DisplayName = "容器1内发生融毁事件时")
-	)
-		FWhenV1DestructionArrive OnV1DestructionArrive;
 
 	UPROPERTY( EditAnywhere, 
 		BlueprintReadOnly,
@@ -138,6 +169,8 @@ protected:
 	// 
 	//========================================================
 
+protected:
+
 	UPROPERTY(EditAnywhere,
 		BlueprintReadOnly,
 		Category = "ItemManagement|2_ClassContainer",
@@ -146,8 +179,6 @@ protected:
 		meta = (NoGetter)
 	)
 	TMap<UClass*, int32> ClassContainer;
-
-
 
 	UFUNCTION(BlueprintCallable,
 		Category = "ItemManagement|2_ClassContainer",
@@ -301,6 +332,8 @@ protected:
 	// 
 	//========================================================
 
+protected:
+
 	UPROPERTY(EditAnywhere,
 		BlueprintReadOnly,
 		Category = "ItemManagement|3_SingleContainer",
@@ -370,25 +403,7 @@ protected:
 	// 移除了手动开启自动清理的选项，默认开启，这可能会影响到插槽5行为。
 	//========================================================
 
-public:
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|4_InstanceContainer",
-		meta = (DisplayName = "容器4内发生融毁事件时")
-	)
-		FWhenV4DestructionArrive OnV4DestructionArrive;
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|4_InstanceContainer",
-		meta = (DisplayName = "容器4内发生内容变更时_增加组")
-	)
-		FWhenV4ChangeArrayMore OnV4ChangeArrayMore;
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|4_InstanceContainer",
-		meta = (DisplayName = "容器4内发生内容变更时_减少组")
-	)
-		FWhenV4ChangeArrayLess OnV4ChangeArrayLess;
+protected:
 
 	UPROPERTY(EditAnywhere,
 		BlueprintReadOnly,
@@ -398,8 +413,6 @@ public:
 		meta = (NoGetter)
 	)
 	TSet<AActor*> BooleanContainer;
-
-protected:
 
 	UFUNCTION(BlueprintCallable,
 		Category = "ItemManagement|4_BooleanContainer",
@@ -571,20 +584,6 @@ protected:
 	// 会在不自动清理时不检查传送内容，导致回收站保持内容，本意是可以通过不清理来执行多次运算。
 	// 
 	//========================================================
-
-public:
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|5_ImmediatelyContainer",
-		meta = (DisplayName = "容器5内发生内容变更时_增加组")
-	)
-		FWhenV5ChangeArrayMore OnV5ChangeArrayMore;
-
-	UPROPERTY(BlueprintAssignable,
-		Category = "ItemManagement|5_ImmediatelyContainer",
-		meta = (DisplayName = "容器5内发生内容变更时_减少组")
-	)
-		FWhenV5ChangeArrayLess OnV5ChangeArrayLess;
 
 protected:
 
