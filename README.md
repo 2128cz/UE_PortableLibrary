@@ -22,16 +22,15 @@
 <a name="file"></a>
 ## 文件结构
 
-在<code>Private</code>和<code>Public</code>下都有同名的文件夹，每组同名文件夹内都是代表含有同一个功能的全部组件集合。
+在<code>Private</code>和<code>Public</code>下都有同名的文件夹，每组同名文件夹内都是代表含有同一个功能的全部组件集合。  
 
 > <code>GeneralPlugLibrary</code> *通用插件库*  
-<a name="ItemManagementComponent"></a>
 >> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 💬  
->>> 用于管理物品，完成背包，多形体碰撞，框选，布尔选择等  
+>>> 管理物品，完成背包，多形体碰撞，框选命令，布尔选择等  
 >>>  &nbsp;  
 >>>  
 >> <code>SimpleTraceComponent</code> 简易射线追踪 🕑  
->>> 用于翻越检测，多形体测量等方法  
+>>> 翻越检测，多形体测量等方法  
 >>>  &nbsp;  
 >>>  
 >> <code>TimeStopComponent</code> 时停组件 🕑  
@@ -39,7 +38,23 @@
 >>>  &nbsp;  
 >>>  
 >> <code>VectorTrackingComponent</code> 矢量追踪 🕑  
->>> 用于检测角色运动轨迹，并在各个阶段产生回调事件，但与移动组件自带的到达跳跃顶点的稍微有点不同。  
+>>> 检测角色运动轨迹，并在各个阶段产生回调事件，但与移动组件自带的到达跳跃顶点的稍微有点不同。  
+>>>  可以检测运动矢量是否由重力主导，检测运动矢量沿重力平面翻转。
+>>>  &nbsp;  
+>>>  
+>> <code>AnimationPhysicsEffectorComponent</code> 动画驱动物理现象 🕑  
+>>> 模拟弹性，柔性运动解算，驱动被动场景元素与主动运动元素交互时“视觉合理”的运动解算；由于仅使用交互距离，弹性趋势等一维浮点参数计算，不能替代真实物理解算。  
+>>>  比如可以用在踩踏的活动平台，可以跟随踩踏者的重量，与支点距离来计算旋转与偏移幅度，并根据运动惯性施加弹跳等现象。
+>>>  &nbsp;  
+>>>  
+>> <code>TriggerTransceiverIntegraionComponent</code> 逻辑收发集成组件 🕑  
+>>> 类似PLC指令表，可以使用LD,LDI,OUT,INV,AND,ANI,OR,ORI,ANB,ORB,XOR,NOR,END,NOE这些基础指令与其他触发器组成指令结构，
+>>> 支持带有同类组件，触发器类，触发接口的方式设定指令，
+>>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许可以囊括所有常用指令，关于如何编写PLC指令可以直接在网上搜。  
+>>>  &nbsp;  
+>>>  
+>> <code>DebugPrintTool</code> 调试信息绘制工具 🕑  
+>>> 扩展调试绘制信息，可以绘制扭转箭头，绘制变换矩阵，绘制简单视锥，绘制虚线，绘制抛物线。  
 >>>  &nbsp;  
 >>>  
 >> ItemManagementComponentNode.txt 
@@ -52,7 +67,7 @@
 <a name="ItemManagementComponent"></a>
 ### 物品管理组件函数列表
 
-因为这个组件属于函数库性质的操作，所以这里将所有可调用的函数列举出来，便于调用。
+因为这个组件属于函数库性质的操作，所以这里将所有可调用的函数列举出来，便于调用。  
 
 > <code>TESTFUNC</code> 测试事件，可重载无返回值  
 > <code>1_InstanceContainer</code> *1号实例容器*  
@@ -102,13 +117,13 @@
 >  
 >  只存储一个对象，但可以用于有多形体碰撞的情况  
 >  通过勾选“当插槽为空时添加”选项，限制加入的对象，并且在移除时，可以只针对插槽内的对象，也就是说可以和插槽1放置在一起使用。  
->> <code>void V3_AddSingleInst(AActor* ActorClass, bool Focus)</code> 添加实例到独有容器3  
+>> <code>void V3_AddSingleInst(AActor* ActorClass, bool Focus)</code> 添加实例到独有容器3
 >>  &nbsp;  
->> <code>void V3_RemoveSingleInst(AActor* Actor)</code> 移除独有容器3的实例  
+>> <code>void V3_RemoveSingleInst(AActor* Actor)</code> 移除独有容器3的实例
 >>  &nbsp;  
->> <code>void V3_CleanSingleInst()</code> 清空独有容器3  
+>> <code>void V3_CleanSingleInst()</code> 清空独有容器3
 >>  &nbsp;  
->> <code>bool V3_GetSingleInst(AActor*& Actor)</code> 获取独有容器3的实例  
+>> <code>bool V3_GetSingleInst(AActor*& Actor)</code> 获取独有容器3的实例
 >>  &nbsp;  
 >>  
 > <code>4_BooleanContainer</code> 4号布尔容器  
@@ -116,29 +131,29 @@
 >  一次性存储多个对象，可以用于玩家框选时的操作  
 >  并且针对框选，框选组布尔，编组等操作封装了特有函数，其主要操作功能和插槽1基本类似。  
 >>  &nbsp;  
->> <code>bool V4_AddActorInst(AActor* Actor)</code> 按实例添加到布尔容器4  
+>> <code>bool V4_AddActorInst(AActor* Actor)</code> 按实例添加到布尔容器4
 >>  &nbsp;  
->> <code>bool V4_RemoveActorInst(AActor* Actor)</code> 按实例移除布尔容器4  
+>> <code>bool V4_RemoveActorInst(AActor* Actor)</code> 按实例移除布尔容器4
 >>  &nbsp;  
->> <code>bool V4_AddActorInstArray(TArray<AActor*> Actors)</code> 按实例组添加布尔容器4  
+>> <code>bool V4_AddActorInstArray(TArray<AActor*> Actors)</code> 按实例组添加布尔容器4
 >>  &nbsp;  
->> <code>bool V4_RemoveActorInstArray(TArray<AActor*> Actors)</code> 按实例组移除布尔容器4  
+>> <code>bool V4_RemoveActorInstArray(TArray<AActor*> Actors)</code> 按实例组移除布尔容器4
 >>  &nbsp;  
->> <code>bool V4_SetActorInstArray(TArray<AActor*> Actors)</code> 替换布尔容器4  
+>> <code>bool V4_SetActorInstArray(TArray<AActor*> Actors)</code> 替换布尔容器4
 >>  &nbsp;  
->> <code>bool V4_FuncIntersection(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 交集操作布尔容器4  
+>> <code>bool V4_FuncIntersection(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 交集操作布尔容器4
 >>  &nbsp;  
->> <code>bool V4_FuncUnion(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 并集操作布尔容器4  
+>> <code>bool V4_FuncUnion(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 并集操作布尔容器4
 >>  &nbsp;  
->> <code>bool V4_FuncDifference(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 差集操作布尔容器4  
+>> <code>bool V4_FuncDifference(TArray<AActor*> Actors, bool AndKeepSave, TSet<AActor*>& Output)</code> 差集操作布尔容器4
 >>  &nbsp;  
->> <code>TArray<AActor*> V4_GetActorArray()</code> 获取对象组布尔容器4  
+>> <code>TArray<AActor*> V4_GetActorArray()</code> 获取对象组布尔容器4
 >>  &nbsp;  
->> <code>bool V4_CleanContainer()</code> 清空布尔容器4  
+>> <code>bool V4_CleanContainer()</code> 清空布尔容器4
 >>  &nbsp;  
->> <code>bool V4_FuncIsArrayForTransfer(TArray<AActor*> Actors, float Threshold, TArray<AActor*>& ValidTrans, TArray<AActor*>& OtherTrans)</code> 校验输入是为传送布尔容器4  
+>> <code>bool V4_FuncIsArrayForTransfer(TArray<AActor*> Actors, float Threshold, TArray<AActor*>& ValidTrans, TArray<AActor*>& OtherTrans)</code> 校验输入是为传送布尔容器4
 >>  &nbsp;  
->> <code>bool V4_FuncIsActorForTransfer(AActor* Actor)</code> 校验传送对象布尔容器4  
+>> <code>bool V4_FuncIsActorForTransfer(AActor* Actor)</code> 校验传送对象布尔容器4
 >>  &nbsp;  
 >> <code>OnV4DestructionArrive</code>容器4内发生融毁事件时
 >>  &nbsp;  
@@ -158,13 +173,13 @@
 >>  &nbsp;  
 >> <code>void V5_UpdataSizer(TArray<AActor*> TargetActors, bool IgoneVes4, TArray<AActor*>& ExcrActors, TArray<AActor*>& MissActor)</code> 更新对象组筛选器即时容器5  
 >>  &nbsp;  
->> <code>TArray<AActor*> V5_OnTransmit()</code> 传送即时容器5  
+>> <code>TArray<AActor*> V5_OnTransmit()</code> 传送即时容器5
 >>  &nbsp;  
->> <code>void V5_Clean()</code> 清除即时容器5  
+>> <code>void V5_Clean()</code> 清除即时容器5
 >>  &nbsp;  
->> <code>TArray<AActor*> V5_GetActors()</code> 获取即时容器5  
+>> <code>TArray<AActor*> V5_GetActors()</code> 获取即时容器5
 >>  &nbsp;  
->> <code>bool V5_RecoveryTransferData()</code> 取消传送即时容器5  
+>> <code>bool V5_RecoveryTransferData()</code> 取消传送即时容器5
 >>  &nbsp;  
 >> <code>OnV5ChangeArrayMore</code>容器5内发生内容变更时_增加组
 >>  &nbsp;  
@@ -172,6 +187,7 @@
 >>  &nbsp;  
 >>  
 > <code>5_ImmediatelyContainer</code> 框选行为示例  
+> 
 >> <code></code>
 >>  &nbsp;  
 >>  
@@ -185,11 +201,7 @@
 <a name="update"></a>
 ## 更新
 
-物品管理组件移植完毕  
-但仅能通过编译，还没完全测试完毕。
-测试完成后会放在插件中。
-
-进度 - 16/32个方法 - 1/37个目标  
+物品管理组件移植完毕，基本能实现功能
 
 &nbsp;
 
