@@ -1,23 +1,22 @@
 <a name="title"></a>
 # 通用操作库
 
-[项目链接](#https://github.com/2128cz/UE_PortableLibrary)  
-
-文件分为<code>Private</code>和<code>Public</code>两个文件夹；  
-其中<code>Private</code>保存.cpp文件，<code>Public</code>保存.h文件，将这些文件夹直接合并到自己工程中即可使用。  
-
-缓慢更新中。。。
+[项目链接](#https://github.com/2128cz/UE_PortableLibrary)
 
 &nbsp;
 
 **目录**
 > 1. [文件结构](#file)
->> [物品管理组件函数列表](ItemManagementComponent)
+>> [物品管理组件函数列表](#ItemManagementComponent)  
+>> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
+> 1. [如何使用]（#HowToUse）
 > 1. [更新](#update)
 > 1. [已知错误](#knowbug)
 > 1. [如何解决报错](#error)
 
 点击[超链接](#file)即可跳转到其标题位置哦
+
+缓慢更新中。。。
 
 &nbsp;
 
@@ -26,15 +25,13 @@
 <a name="file"></a>
 ## 文件结构
 
-在<code>Private</code>和<code>Public</code>下都有同名的文件夹，每组同名文件夹内都是代表含有同一个功能的全部组件集合。  
-
 > <code>GeneralPlugLibrary</code> *通用插件库*  
 >> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
 >>> 动态物品管理，静态物品管理，多形体碰撞管理，指令框选管理，物品条目布尔操作等  
 >>>  &nbsp;
 >>>  
 >> <code>TimeStopComponent</code> 时停组件 🕑  
->>> 用于不同的时停策略，和引擎暂停类似，可以在确保全局物理正确的情况下排除任意对象制造时停。  
+>>> 用于不同的时停策略，和引擎暂停类似，可以在确保全局物理正确的情况下排除任意对象制造时间膨胀，近似时停。  
 >>>  &nbsp;  
 >>>  
 >> <code>VectorTrackingComponent</code> 角色矢量追踪 🕑  
@@ -66,8 +63,9 @@
 >>>  &nbsp;  
 >>>
 
-
 &nbsp;
+
+-----
 
 <a name="ItemManagementComponent"></a>
 ### 物品管理组件函数列表
@@ -88,7 +86,6 @@
 >> <code>void V1_CleanActorInst()</code> 清空容器
 >>  &nbsp;  
 >> <code>OnV1DestructionArrive</code> 容器1内发生融毁事件时  
->> 定义句柄在`.h`文件的开头处，现在调用会崩溃，所以还没用。
 >>  &nbsp;  
 >  
 > <code>2_ClassContainer</code> *2号类容器*  
@@ -197,19 +194,23 @@
 >>  &nbsp;  
 >>  
 
-之所以用数字做名字是因为函数有点多，名称不好区分（记不住🙄），在搜索函数时可以直接用数字找到函数，还挺方便的。  
+之所以用数字做名字是因为函数有点多，名称不好区分，在搜索函数时可以直接用数字找到函数，还挺方便的。  
 
 🔼[回到顶部](#title)
 
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
 &nbsp;
 
 <a name="TriggerTransceiverIntegraionComponent"></a>
 ### 逻辑收发集成组件使用
 
-直接在需要使用的地方添加此组件即可，其余操作均可从细节面板中直接设置
+Add this component where you want to use it, and the rest of the operations can be set directly from the details panel
 
-#### 如何使用
-* 直接添加到组件列表中，并点击该组件进入组件细节面板，在组件细节面板中找到
+* How to use  
+直接添加到组件列表中，并点击该组件进入组件细节面板，在组件细节面板中找到
 <code>接收与逻辑</code>
 ，在该折叠标题下可以看到当前默认的逻辑状态和逻辑流程；  
 默认逻辑为真，逻辑流程为空，这代表此组件现在仅作为
@@ -217,11 +218,13 @@
 使用，如果在此组件列表中存在其他触发器组件，那么此组件会自动绑定到此触发器，否则需要额外使用逻辑来使用
 <code>触发信号</code>
 ；  
+
 * How to use Logical flow sheet  
 A logical flow sheet uses an
 <code>instruction + target</code>
 structure, where the target can be empty and the component automatically fills in itself as the target；    
 &nbsp;
+
 * Order List
 
 | Order | instruction                                                                                                                          | Target            | Description                                                                                                  |
@@ -241,8 +244,20 @@ structure, where the target can be empty and the component automatically fills i
 | END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            |                                                                                                              |
 | NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                              |
 
-如果英文有误，请务必告知于我。  
-Please let me know if there are any grammatical errors or misunderstandings in the English instructions
+使用英文只是为了表格的格式好看(身心愉悦)  
+如果英文有错误或有误区的地方，请务必告知于我。  
+Please let me know if there are any grammatical errors or misunderstandings in the English instructions.
+
+* 程序报错
+
+
+&nbsp;
+
+
+<a name="HowToUse"></a>
+## 如何使用
+
+
 
 🔼[回到顶部](#title)
 
@@ -268,7 +283,8 @@ Please let me know if there are any grammatical errors or misunderstandings in t
 
 * 如果直接移植报错与类相关，可能是由于类名没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建文件一个看看名字？  
 
-* 如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，请立即重启并从引擎编译，确保可以看到c++内容时再打开文件；如果发现文件已经从图标变为文本，说明文件已经丢失了c++类，此时可以在编译完后打开并手动恢复先前的状态；想要预防这类事件，需要避免在引擎未开启时对源文件的改动，对脏文件保存也不行，可以等待引擎编译完成后再进行保存。  
+* 如果发现文件已经从图标变为文本，说明已经丢失了c++类，不过不要着急打开确认，此时打开的话找不到的目标就会成为既定事实，你可以等待重新编译完成并通过后，再检查文件目标是否恢复，一般此时文件目标会恢复；
+不过如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，这时通常指向已经偏离，无法使用通常手段进行恢复，不过此类事件发生的几率较小，不需要太过担心。
 
 * 如果编译时发现一直提示一个固定的错误，怎么也改不掉，错误行也不变，可以在编译文件目录下试着找找是否存在<code>.history</code>文件，清空里面的内容即可。
 
