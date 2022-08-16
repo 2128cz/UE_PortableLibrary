@@ -6,6 +6,8 @@
 文件分为<code>Private</code>和<code>Public</code>两个文件夹；  
 其中<code>Private</code>保存.cpp文件，<code>Public</code>保存.h文件，将这些文件夹直接合并到自己工程中即可使用。  
 
+缓慢更新中。。。
+
 &nbsp;
 
 **目录**
@@ -13,11 +15,13 @@
 >> [物品管理组件函数列表](ItemManagementComponent)
 > 1. [更新](#update)
 > 1. [已知错误](#knowbug)
-> 1. [解决报错](#error)
+> 1. [如何解决报错](#error)
 
 点击[超链接](#file)即可跳转到其标题位置哦
 
 &nbsp;
+
+-----
 
 <a name="file"></a>
 ## 文件结构
@@ -25,42 +29,43 @@
 在<code>Private</code>和<code>Public</code>下都有同名的文件夹，每组同名文件夹内都是代表含有同一个功能的全部组件集合。  
 
 > <code>GeneralPlugLibrary</code> *通用插件库*  
->> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 💬  
->>> 管理物品，完成背包，多形体碰撞，框选命令，布尔选择等  
->>>  &nbsp;  
->>>  
->> <code>SimpleTraceComponent</code> 简易射线追踪 🕑  
->>> 翻越检测，多形体测量等方法  
->>>  &nbsp;  
+>> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
+>>> 动态物品管理，静态物品管理，多形体碰撞管理，指令框选管理，物品条目布尔操作等  
+>>>  &nbsp;
 >>>  
 >> <code>TimeStopComponent</code> 时停组件 🕑  
 >>> 用于不同的时停策略，和引擎暂停类似，可以在确保全局物理正确的情况下排除任意对象制造时停。  
 >>>  &nbsp;  
 >>>  
->> <code>VectorTrackingComponent</code> 矢量追踪 🕑  
+>> <code>VectorTrackingComponent</code> 角色矢量追踪 🕑  
 >>> 检测角色运动轨迹，并在各个阶段产生回调事件，但与移动组件自带的到达跳跃顶点的稍微有点不同。  
 >>>  可以检测运动矢量是否由重力主导，检测运动矢量沿重力平面翻转。
 >>>  &nbsp;  
 >>>  
->> <code>AnimationPhysicsEffectorComponent</code> 动画驱动物理现象 🕑  
->>> 模拟弹性，柔性运动解算，驱动被动场景元素与主动运动元素交互时“视觉合理”的运动解算；由于仅使用交互距离，弹性趋势等一维浮点参数计算，不能替代真实物理解算。  
->>>  比如可以用在踩踏的活动平台，可以跟随踩踏者的重量，与支点距离来计算旋转与偏移幅度，并根据运动惯性施加弹跳等现象。
+>> <code>RandomNoiseExtractionSeparation</code> 抖动矢量追踪 🕑
+>>> 用于手柄角速度传感器复用输入，通过信号抖动与否来区分是否正在使用传感器输入，将手柄的挥舞动作作为事件输出，比如上下左右挥动，但考虑到性能问题，可能做不了更复杂的动作，比如画圆，画三角等；  
+>>> 复用输入是指这条信号通道（2d向量）上同时有多个输入设备，比如鼠标，手柄摇杆，手柄角速度传感器，键盘方向键等，将传感器信号与其他所有信号区分开就是它的工作了；
+>>> 一般只是用来区分摇杆，鼠标和角速度，其中鼠标的输入较大时，对输出影响也较大，。
+>>>  &nbsp;
+>>>
+>> <code>AnimationPhysicsEffectorComponent</code> 动画驱动物理现象 🕑
+>>> 可以代替物理模拟引擎完成在固定运动对象与模拟运动对象交互时的运动解算，并模拟弹性，柔性运动，使得元素运动更“视觉合理”； 
+>>> 但此运动模拟仅在二维方向上有效，且需要使用Damage服务来触发动画，需要在一定程度上修改已有代码才能够正常运行，除此之外其他事件比如平台转移则已经存在方法解决。
 >>>  &nbsp;  
 >>>  
->> <code>TriggerTransceiverIntegraionComponent</code> 逻辑收发集成组件 🕑  
->>> 类似PLC指令表，可以使用LD,LDI,OUT,INV,AND,ANI,OR,ORI,ANB,ORB,XOR,NOR,END,NOE这些基础指令与其他触发器组成指令结构，
+>> <code>[TriggerTransceiverIntegraionComponent](#TriggerTransceiverIntegraionComponent)</code> 逻辑收发集成组件 ❗
+>>> 使用逻辑类似PLC指令表，可以使用LD,LDI,OUT,INV,AND,ANI,OR,ORI,ANB,ORB,XOR,NOR,END,NOE这些基础指令与其他触发器组成指令结构，
 >>> 支持带有同类组件，触发器类，触发接口的方式设定指令，
->>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许可以囊括所有常用指令，关于如何编写PLC指令可以直接在网上搜。  
+>>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许我想可以囊括所有常用指令，关于如何编写PLC指令可以自行在网上搜索。  
+>>> 为了避免发生无限循环，由指令表产生的输出不会通过设置指令触发其他指令表的计算，而是偷偷赋值。  
+>>> 如果有必要进行多表协同计算，那么可以开启“针对无限循环优化”，这会将触发指令转到task上，等待全局同步结束后再一起计算，相应的，这会大幅提高响应时间。
 >>>  &nbsp;  
 >>>  
 >> <code>DebugPrintTool</code> 调试信息绘制工具 🕑  
 >>> 扩展调试绘制信息，可以绘制扭转箭头，绘制变换矩阵，绘制简单视锥，绘制虚线，绘制抛物线。  
 >>>  &nbsp;  
->>>  
->> ItemManagementComponentNode.txt 
->>> [ItemManagementComponent](#ItemManagementComponent)的所有节点，全选复制到蓝图中即可。  
->>>  &nbsp;  
->>>  
+>>>
+
 
 &nbsp;
 
@@ -74,13 +79,13 @@
 >  
 >  设计用于纯实例对象加入或移除，依赖于运行中的实例;  
 >  如果某实例在这之后被销毁，那么将会自动清理废引用，并产生一个发生销毁事件  
->> <code>bool V1_AddActorByInst(AActor* ActorInstance)</code> 向容器1添加一个实例  
+>> <code>bool V1_AddActorByInst(AActor* ActorInstance)</code> 向容器1添加一个实例
 >>  &nbsp;  
->> <code>bool V1_RemoveActorByInst(AActor* ActorInstance)</code> 在容器1中移除一个对象实例  
+>> <code>bool V1_RemoveActorByInst(AActor* ActorInstance)</code> 在容器1中移除一个对象实例
 >>  &nbsp;  
->> <code>TArray<AActor*> V1_GetActorInst()</code> 获取容器集合  
+>> <code>TArray<AActor*> V1_GetActorInst()</code> 获取容器集合
 >>  &nbsp;  
->> <code>void V1_CleanActorInst()</code> 清空容器  
+>> <code>void V1_CleanActorInst()</code> 清空容器
 >>  &nbsp;  
 >> <code>OnV1DestructionArrive</code> 容器1内发生融毁事件时  
 >> 定义句柄在`.h`文件的开头处，现在调用会崩溃，所以还没用。
@@ -90,27 +95,27 @@
 >  
 >  存储类对象，最好在存储后进行移除，否则有可能造成多次加入  
 >  在添加时勾选“添加时移除实例”即可。针对有可能使用索引回调的控件事件，提供了按索引更新的函数
->> <code>bool V2_AddAClassByInst(AActor* ActorInstance, bool AndDestroy)</code> 对象类容器2按实例添加  
+>> <code>bool V2_AddAClassByInst(AActor* ActorInstance, bool AndDestroy)</code> 对象类容器2按实例添加
 >>  &nbsp;  
->> <code>bool V2_RemoveAClassByInst(AActor* ActorInstance)</code> 对象类容器2按实例移除  
+>> <code>bool V2_RemoveAClassByInst(AActor* ActorInstance)</code> 对象类容器2按实例移除
 >>  &nbsp;  
->> <code>void V2_AddAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类增加  
+>> <code>void V2_AddAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类增加
 >>  &nbsp;  
->> <code>void V2_RemoveAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类减少  
+>> <code>void V2_RemoveAClassByClass(UClass* ActorClass, int32 Number)</code> 对象类容器2按类减少
 >>  &nbsp;  
->> <code>void V2_SetAClassByClass(UClass* ActorClass, int32 Number, bool SetNumber)</code> 对象类容器2按类设置  
+>> <code>void V2_SetAClassByClass(UClass* ActorClass, int32 Number, bool SetNumber)</code> 对象类容器2按类设置
 >>  &nbsp;  
->> <code>void V2_AddAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引增加  
+>> <code>void V2_AddAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引增加
 >>  &nbsp;  
->> <code>void V2_RemoveAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引减少  
+>> <code>void V2_RemoveAClassByIndex(int32 Index, int32 Number)</code> 对象类容器2按索引减少
 >>  &nbsp;  
->> <code>void V2_SetAClassByIndex(int32 Index, int32 Number, bool SetNumber)</code> 对象类容器2按索引设置  
+>> <code>void V2_SetAClassByIndex(int32 Index, int32 Number, bool SetNumber)</code> 对象类容器2按索引设置
 >>  &nbsp;  
->> <code>bool V2_GetAClassByInst(AActor* ActorClass, int32& Number)</code> 按实例获取对象类容器2内容  
+>> <code>bool V2_GetAClassByInst(AActor* ActorClass, int32& Number)</code> 按实例获取对象类容器2内容
 >>  &nbsp;  
->> <code>bool V2_GetAClassByClass(UClass* ActorClass, int32& Number)</code> 按类获取对象类容器2内容  
+>> <code>bool V2_GetAClassByClass(UClass* ActorClass, int32& Number)</code> 按类获取对象类容器2内容
 >>  &nbsp;  
->> <code>bool V2_GetAClassByIndex(int32 Index, UClass*& ActorClass, int32& Number)</code> 按索引获取对象类容器2内容  
+>> <code>bool V2_GetAClassByIndex(int32 Index, UClass*& ActorClass, int32& Number)</code> 按索引获取对象类容器2内容
 >>  &nbsp;  
 >  
 > <code>3_SingleContainer</code> 3号独有容器  
@@ -171,7 +176,7 @@
 >  更新时如果需要忽略浏览的高亮事件作用于已选择的对象（指插槽4中的内容），勾选忽略选项即可。  
 >  当前版本的传送后回收功能受插槽4的自动清理功能限制，会在不自动清理时不检查传送内容，导致回收站保持内容，本意是可以通过不清理来执行多次运算。  
 >>  &nbsp;  
->> <code>void V5_UpdataSizer(TArray<AActor*> TargetActors, bool IgoneVes4, TArray<AActor*>& ExcrActors, TArray<AActor*>& MissActor)</code> 更新对象组筛选器即时容器5  
+>> <code>void V5_UpdataSizer(TArray<AActor*> TargetActors, bool IgoneVes4, TArray<AActor*>& ExcrActors, TArray<AActor*>& MissActor)</code> 更新对象组筛选器即时容器5
 >>  &nbsp;  
 >> <code>TArray<AActor*> V5_OnTransmit()</code> 传送即时容器5
 >>  &nbsp;  
@@ -188,7 +193,7 @@
 >>  
 > <code>5_ImmediatelyContainer</code> 框选行为示例  
 > 
->> <code></code>
+>> <code>nope</code>
 >>  &nbsp;  
 >>  
 
@@ -198,27 +203,74 @@
 
 &nbsp;
 
+<a name="TriggerTransceiverIntegraionComponent"></a>
+### 逻辑收发集成组件使用
+
+直接在需要使用的地方添加此组件即可，其余操作均可从细节面板中直接设置
+
+#### 如何使用
+* 直接添加到组件列表中，并点击该组件进入组件细节面板，在组件细节面板中找到
+<code>接收与逻辑</code>
+，在该折叠标题下可以看到当前默认的逻辑状态和逻辑流程；  
+默认逻辑为真，逻辑流程为空，这代表此组件现在仅作为
+<code>触发器信号</code>
+使用，如果在此组件列表中存在其他触发器组件，那么此组件会自动绑定到此触发器，否则需要额外使用逻辑来使用
+<code>触发信号</code>
+；  
+* How to use Logical flow sheet  
+A logical flow sheet uses an
+<code>instruction + target</code>
+structure, where the target can be empty and the component automatically fills in itself as the target；    
+&nbsp;
+* Order List
+
+| Order | instruction                                                                                                                          | Target            | Description                                                                                                  |
+|-------|--------------------------------------------------------------------------------------------------------------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------|
+| LD    | Load the target logic and connect it directly to the bus                                                                             | necessary / self  | The LD can be used anywhere to create a new bus,All the instructions after that are on this new bus          |
+| LDI   | Same as the LD instruction, but inverts the Load logic                                                                               | necessary / self  | Same as the LD                                                                                               |
+| OUT   | Output the result of the current process or instruction block                                                                        | necessary / self  | The output does not indicate the end of the program, and you can still do other things after that            |
+| INV   | inverts pointer logic                                                                                                                | ignore            | pointer logic mean The logic on a pointer when a program pointer runs from top to bottom to the current line |
+| AND   | The output is true only if both the target logic and the pointer logic are true, otherwise any two are false and the output is false | necessary / self  |                                                                                                              |
+| ANI   | Same as the AND instruction, but inverts the Target logic                                                                            | necessary / self  |                                                                                                              |
+| ANB   | If there are more than one bus, this instruction will AND the existing pointer logic to the last instruction of the root bus         | ignore            |                                                                                                              |
+| OR    | If either of the target logic or pointer logic is true, the output is true                                                           | necessary / self  |                                                                                                              |
+| ORI   | Same as the OR instruction, but inverts the Target logic                                                                             | necessary / self  |                                                                                                              |
+| ORB   | If there are more than one bus, this instruction will OR the existing pointer logic to the last instruction of the root bus          | ignore            |                                                                                                              |
+| XOR   | Xor with the target logic                                                                                                            | necessary / self  |                                                                                                              |
+| NOR   | Nor with the target logic                                                                                                            | necessary / self  |                                                                                                              |
+| END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            |                                                                                                              |
+| NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                              |
+
+<explain之所以这么突兀的用英文是因为中文半角对不齐全角又太难看了我看了浑身难受>
+如果英文有误，请务必告知于我。  
+Please let me know if there are any grammatical errors or misunderstandings in the English instructions
+
+🔼[回到顶部](#title)
+
+&nbsp;
+
+-----
+
 <a name="update"></a>
 ## 更新
 
-物品管理组件移植完毕，基本能实现功能
+欸嘿，还没动笔呢
 
 &nbsp;
 
 <a name="knowbug"></a>
 ## 已知错误
 
-1号实例库的实例销毁后处理事件不能正常工作。  
 
 &nbsp;
 
 <a name="error"></a>
 ## 解决报错
 
-如果直接移植报错与类相关，可能是由于类名没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建文件一个看看名字？  
+* 如果直接移植报错与类相关，可能是由于类名没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建文件一个看看名字？  
 
-如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，请立即重启并从引擎编译，确保可以看到c++内容时再打开文件；如果发现文件已经从图标变为文本，说明文件已经丢失了c++类，此时可以在编译完后打开并手动恢复先前的状态；想要预防这类事件，需要避免在引擎未开启时对源文件的改动，对脏文件保存也不行，可以等待引擎编译完成后再进行保存。  
+* 如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，请立即重启并从引擎编译，确保可以看到c++内容时再打开文件；如果发现文件已经从图标变为文本，说明文件已经丢失了c++类，此时可以在编译完后打开并手动恢复先前的状态；想要预防这类事件，需要避免在引擎未开启时对源文件的改动，对脏文件保存也不行，可以等待引擎编译完成后再进行保存。  
 
-如果编译时发现一直提示一个固定的错误，怎么也改不掉，错误行也不变，可以在编译文件目录下试着找找是否存在<code>.history</code>文件，清空里面的内容即可。
+* 如果编译时发现一直提示一个固定的错误，怎么也改不掉，错误行也不变，可以在编译文件目录下试着找找是否存在<code>.history</code>文件，清空里面的内容即可。
 
-如果委托绑定提示签名不对，可以尝试直接产生事件。
+* 如果委托绑定提示签名不对，可以尝试直接产生事件。
