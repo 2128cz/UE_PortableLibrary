@@ -346,6 +346,7 @@ bool UItemManagementComponent::V4_FuncIsArrayForTransfer(TArray<AActor*> Actors,
 		ValidTrans = ArraySetB;
 		OtherTrans = ArraySetA.Intersect(TransferContainer).Array();
 		TransferContainer.Reset();
+		return true;
 	}
 	return false;
 }
@@ -409,13 +410,11 @@ void UItemManagementComponent::V1_OnDestroyed(AActor* DestroyedActor)
 {
 	OnV1DestructionArrive.Broadcast(DestroyedActor);
 	V1_RemoveActorByInst(DestroyedActor);
-	TESTFUNC();
 }
 
 void UItemManagementComponent::V4_OnDestroyed(AActor* DestroyedActor)
 {
 	OnV4DestructionArrive.Broadcast(DestroyedActor);
 	V4_RemoveActorInst(DestroyedActor);
-	TESTFUNC();
 }
 
