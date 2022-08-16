@@ -9,7 +9,7 @@
 > 1. [文件结构](#file)
 >> [物品管理组件函数列表](#ItemManagementComponent)  
 >> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
-> 1. [如何使用]（#HowToUse）
+> 2. [如何使用](#HowToUse)
 > 1. [更新](#update)
 > 1. [已知错误](#knowbug)
 > 1. [如何解决报错](#error)
