@@ -241,7 +241,6 @@ structure, where the target can be empty and the component automatically fills i
 | END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            |                                                                                                              |
 | NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                              |
 
-<explain之所以这么突兀的用英文是因为中文半角对不齐全角又太难看了我看了浑身难受>
 如果英文有误，请务必告知于我。  
 Please let me know if there are any grammatical errors or misunderstandings in the English instructions
 
