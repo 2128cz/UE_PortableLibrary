@@ -1,7 +1,7 @@
 <a name="title"></a>
 # 通用操作库  
 
-[项目链接](#https://github.com/2128cz/UE_PortableLibrary)
+[](#https://github.com/2128cz/UE_PortableLibrary)
 
 &nbsp;
 
@@ -9,8 +9,7 @@
 > 1. [文件结构](#file)
 >> [物品管理组件函数列表](#ItemManagementComponent)  
 >> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
-> 2. [如何使用](#HowToUse)
-> 1. [更新](#update)
+> 2. [更新](#update)
 > 1. [如何解决报错](#error)
 
 点击[超链接](#file)即可跳转到其标题位置哦
@@ -19,10 +18,9 @@
 
 &nbsp;
 
------
-
 <a name="file"></a>
 ## 文件结构
+
 
 > <code>GeneralPlugLibrary</code> *通用插件库*  
 >> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
@@ -67,7 +65,9 @@
 -----
 
 <a name="ItemManagementComponent"></a>
-### 物品管理组件函数列表
+### 物品管理组件函数列表  
+
+&nbsp;
 
 因为这个组件属于函数库性质的操作，所以这里将所有可调用的函数列举出来，便于调用。  
 
@@ -197,9 +197,19 @@
 
 &nbsp;
 
-#### 如何制作框选行为
+#### 如何使用
+
+&nbsp;
+
+你可以通过这张图片看到全部函数的列表，也可以在上方的函数列表来获取更多详细信息
 
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCAllBPFuncList.png?raw=true" />
+
+其他功能并没有什么很不得了的地方，此组件的主要功能是用来代替常规的框选操作，完成框选的函数全部来自于4号和5号容器；  
+框选的操作看起来像这样：
+
+<img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCBPShow1.png?raw=true" />
+<img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCBPShow2.png?raw=true" />
 
 🔼[回到顶部](#title)
 
@@ -257,16 +267,6 @@ structure, where the target can be empty and the component automatically fills i
 * 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
 无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个等待时间默认为500ms；
 而这段时间内如果还有其他赋值事件，则会全部记录，并按指定（与，或，最后时刻）运算，这是因为如果需要条件逻辑可以使用取指令，而不是赋值指令。
-
-
-🔼[回到顶部](#title)
-
-&nbsp;
-
-
-<a name="HowToUse"></a>
-## 如何使用
-
 
 
 🔼[回到顶部](#title)
