@@ -205,11 +205,25 @@
 
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCAllBPFuncList.png?raw=true" />
 
-其他功能并没有什么很不得了的地方，此组件的主要功能是用来代替常规的框选操作，完成框选的函数全部来自于4号和5号容器；  
-框选的操作看起来像这样：
+其他功能并没有什么很不得了的地方，此组件的主要功能是用来代替常规的框选操作，完成框选的函数全部来自于4号和5号容器  
+框选的节点看起来像这样：
 
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCBPShow1.png?raw=true" />
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCBPShow2.png?raw=true" />
+
+其中左侧输入来自<code>Receive Draw HUD</code>，但无需担心重复调用，左上角的宏仅用作后续的选框绘制，而接入鼠标按键的目的是在合适的时机进行绘制并共享局部变量。  
+需要注意的是，在现在的插件中的程序很可能与图片中展示的节点有所不同，比如我取消了对<code>布尔容器4</code>的自动清理选项，因为一般情况下对此进行操作显得毫无意义；  
+以上节点使用少量的功能即可完成框选功能，此时你可以在<code>布尔容器4</code>中找到所有已框选的对象，而<code>即时容器5</code>的作用是可以在框选中对框选下的对象进行浏览；
+如果此时使用调试，或是用高亮显示的方式来进行查看，会发现框选的对象向释放后框选对象进行转变时会额外产生一次事件，为了消除这个事件，需要用到<code>即时容器5</code>的传送功能，
+作为传送的对象可以在转移到<code>布尔容器4</code>时避免产生事件，同时彻底清除遗留在<code>即时容器5</code>的引用，就像这样：
+
+<img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCEm1.png?raw=true" />
+
+这之后就可以进行类似这样的操作了：
+
+<img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCSelect.png?raw=true" />
+
+
 
 🔼[回到顶部](#title)
 
