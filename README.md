@@ -1,5 +1,5 @@
 <a name="title"></a>
-# 通用操作库
+# 通用操作库  
 
 [项目链接](#https://github.com/2128cz/UE_PortableLibrary)
 
@@ -11,7 +11,6 @@
 >> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
 > 2. [如何使用](#HowToUse)
 > 1. [更新](#update)
-> 1. [已知错误](#knowbug)
 > 1. [如何解决报错](#error)
 
 点击[超链接](#file)即可跳转到其标题位置哦
@@ -54,7 +53,7 @@
 >>> 使用逻辑类似PLC指令表，可以使用LD,LDI,OUT,INV,AND,ANI,OR,ORI,ANB,ORB,XOR,NOR,END,NOE这些基础指令与其他触发器组成指令结构，
 >>> 支持带有同类组件，触发器类，触发接口的方式设定指令，
 >>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许我想可以囊括所有常用指令，关于如何编写PLC指令可以自行在网上搜索。  
->>> 为了避免发生无限循环，由指令表产生的输出不会通过设置指令触发其他指令表的计算，而是偷偷赋值。  
+>>> 为了避免发生无限循环，由指令表产生的输出不会通过设置指令触发其他指令表的计算。 
 >>> 如果有必要进行多表协同计算，那么可以开启“针对无限循环优化”，这会将触发指令转到task上，等待全局同步结束后再一起计算，相应的，这会大幅提高响应时间。
 >>>  &nbsp;  
 >>>  
@@ -196,6 +195,12 @@
 
 之所以用数字做名字是因为函数有点多，名称不好区分，在搜索函数时可以直接用数字找到函数，还挺方便的。  
 
+&nbsp;
+
+#### 如何制作框选行为
+
+<img src="https://github.com/2128cz/UE_PortableLibrary/tree/main/Resources/IMCAllBPFuncList.png" />
+
 🔼[回到顶部](#title)
 
 &nbsp;  
@@ -239,17 +244,22 @@ structure, where the target can be empty and the component automatically fills i
 | OR    | If either of the target logic or pointer logic is true, the output is true                                                           | necessary / self  |                                                                                                              |
 | ORI   | Same as the OR instruction, but inverts the Target logic                                                                             | necessary / self  |                                                                                                              |
 | ORB   | If there are more than one bus, this instruction will OR the existing pointer logic to the last instruction of the root bus          | ignore            |                                                                                                              |
-| XOR   | Xor with the target logic                                                                                                            | necessary / self  |                                                                                                              |
-| NOR   | Nor with the target logic                                                                                                            | necessary / self  |                                                                                                              |
-| END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            |                                                                                                              |
+| XOR   | Xor with the target logic                                                                                                            | necessary / self  | Just like a conditional inverse fetch, you can invert pointer logic when your target is true                                                                                                             |
+| NOR   | Nor with the target logic                                                                                                            | necessary / self  | Contrary to XOR                                                                                                             |
+| END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            | Manually added to a program forces the pointer to stop running                                                                                                             |
 | NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                              |
 
-使用英文只是为了表格的格式好看(身心愉悦)  
-如果英文有错误或有误区的地方，请务必告知于我。  
-Please let me know if there are any grammatical errors or misunderstandings in the English instructions.
+    使用英文只是为了表格的格式好看(身心愉悦)  
+    如果英文有错误或有误区的地方，请务必告知于我。  
+    Please let me know if there are any grammatical errors or misunderstandings in the English instructions.
 
-* 程序报错
+* 此逻辑表程序指令几乎在任何情况下都能使用，只有部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行；  
+* 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
+无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个等待时间默认为500ms；
+而这段时间内如果还有其他赋值事件，则会全部记录，并按指定（与，或，最后时刻）运算，这是因为如果需要条件逻辑可以使用取指令，而不是赋值指令。
 
+
+🔼[回到顶部](#title)
 
 &nbsp;
 
@@ -268,24 +278,30 @@ Please let me know if there are any grammatical errors or misunderstandings in t
 <a name="update"></a>
 ## 更新
 
-欸嘿，还没动笔呢
-
-&nbsp;
-
-<a name="knowbug"></a>
-## 已知错误
-
+变成插件乐（  
 
 &nbsp;
 
 <a name="error"></a>
 ## 解决报错
 
-* 如果直接移植报错与类相关，可能是由于类名没有改为合适的项目， 可以在<code>class <code>your project name</code>_API UItemManagementComponent : public UActorComponent</code>的<code>your project name</code>处填入自己工程的名字，如果还是不对可以自己新建文件一个看看名字？  
+* 如果直接移植报错与类相关，可能是由于类名没有改为合适的项目；  
+可以在<code>class <code>your project name</code>_API U<code>your file name</code> : public U<code>your base class</code></code>中填入相应的名字;   
+不过现在已经改为了插件形式了，应该不会有这样的错误了。  
 
-* 如果发现文件已经从图标变为文本，说明已经丢失了c++类，不过不要着急打开确认，此时打开的话找不到的目标就会成为既定事实，你可以等待重新编译完成并通过后，再检查文件目标是否恢复，一般此时文件目标会恢复；
-不过如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，这时通常指向已经偏离，无法使用通常手段进行恢复，不过此类事件发生的几率较小，不需要太过担心。
+&nbsp;  
+* 如果发现文件已经从图标变为文本；  
+说明已经丢失了c++类，不过不要着急打开确认，此时打开的话找不到的目标就会成为既定事实，你可以等待重新编译完成并通过后，再检查文件目标是否恢复，一般此时文件目标会恢复；  
+没能自动恢复的话，就只能考虑手动重新写一遍了；  
+不过如果编译时发现函数目标从组件应有的命名变为<code>LIVE CODE</code>开头的命名；或是发现调用时根本找不到函数，这时通常指向已经偏离，无法使用通常手段进行恢复，不过此类事件发生的几率较小，不需要太过担心。  
 
-* 如果编译时发现一直提示一个固定的错误，怎么也改不掉，错误行也不变，可以在编译文件目录下试着找找是否存在<code>.history</code>文件，清空里面的内容即可。
+&nbsp;  
+* 如果编译时发现一直提示一个固定的错误，怎么也改不掉，错误行也不变；  
+可以在编译文件目录下试着找找是否存在<code>.history</code>文件，清空里面的内容即可。
 
-* 如果委托绑定提示签名不对，可以尝试直接产生事件。
+&nbsp;  
+* 组件存在分发器句柄，但不允许绑定，提示签名错误；  
+可以直接使用添加事件解决，可能是因为已经在头文件中定义了句柄事件，所以不能绑定。  
+
+&nbsp;
+* 
