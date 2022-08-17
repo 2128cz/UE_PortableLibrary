@@ -199,7 +199,7 @@
 
 #### 如何制作框选行为
 
-<img src="https://github.com/2128cz/UE_PortableLibrary/tree/main/Resources/IMCAllBPFuncList.png" />
+<img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCAllBPFuncList.png?raw=true" />
 
 🔼[回到顶部](#title)
 
