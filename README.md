@@ -14,7 +14,7 @@
 
 点击[超链接](#file)即可跳转到其标题位置哦
 
-缓慢更新中。。。
+更新中。。。
 
 &nbsp;
 
@@ -26,11 +26,7 @@
 >> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
 >>> 动态物品管理，静态物品管理，多形体碰撞管理，指令框选管理，物品条目布尔操作等  
 >>>  &nbsp;
->>>  
->> <code>TimeStopComponent</code> 时停组件 🕑  
->>> 用于不同的时停策略，和引擎暂停类似，可以在确保全局物理正确的情况下排除任意对象制造时间膨胀，近似时停。  
->>>  &nbsp;
->>>  
+>>>   
 >> <code>RandomNoiseExtractionSeparation</code> 抖动矢量追踪 🕑
 >>> 用于手柄角速度传感器复用输入，通过信号抖动与否来区分是否正在使用传感器输入，将手柄的挥舞动作作为事件输出，比如上下左右挥动，但考虑到性能问题，可能做不了更复杂的动作，比如画圆，画三角等；  
 >>> 复用输入是指这条信号通道（2d向量）上同时有多个输入设备，比如鼠标，手柄摇杆，手柄角速度传感器，键盘方向键等，将传感器信号与其他所有信号区分开就是它的工作了；
@@ -51,7 +47,11 @@
 >>> 扩展调试绘制信息，可以绘制扭转箭头，绘制变换矩阵，绘制简单视锥，绘制虚线，绘制抛物线。  
 >>>  &nbsp;  
 >>>
-
+>>  <code>[NiagaraSample](#NiagaraSample)</code>粒子系统示例 ❗
+>>> 一些流体模拟系统。  
+>>>  &nbsp;
+>>>
+> 
 &nbsp;
 
 -----
@@ -287,12 +287,26 @@ structure, where the target can be empty and the component automatically fills i
 | OUT   |         |
 
 这样写指令结构并无错误，所以不会报错，但如果当前组件模式是<code>优化循环引用模式</code>，第二个<code>LD command</code>读取的就是没有被<code>OUT command</code>赋值的状态；  
-相反，如果<code>未开启优化循环引用模式</code>，第二个<code>LD command</code>读取的就是<code>OUT command</code>赋值后的状态；
-还有种情况就是，<code>Target1</code>中的逻辑表在后续的运行中添加并引用了这里的逻辑表，那么双方都会在此时默认<code>开启优化循环引用模式</code>。  
+相反，如果<code>未开启优化循环引用模式</code>，第二个<code>LD command</code>读取的就是<code>OUT command</code>赋值后的状态；  
 
 &nbsp;
 
-2. 无用的逻辑，可以使用<code>NOE</code>或<code>END</code>作为装饰命令被忽略
+2. 关于优化循环引用模式  
+
+考虑到运行中途如果检测到循环引用后导致<code>优化循环引用模式</code>的变更会很突兀，所以如果用户使用转义程序动态添加程序后，
+需要手动顺序调用<code>初始化逻辑表</code><code>检查指令循环引用</code>这两个函数，并检查指定深度的循环引用  
+
+    如果没有额外定义，那么组件默认只检查1个深度的循环引用，它的本质就是广度优先的树状递归，
+    深度不能太大，以免检查的太频繁反而被引擎断言；
+
+    当然更简单的方式是将父类的 BeginPlay 用作初始化使用，
+    父类函数其实可以在子类的任何地方进行调用，也可以调用多个父类函数，作为用户检测方案也是一个不错的选择。
+
+当然如果不需要组件运算的实时性的话，可以直接将<code>检查指令循环引用</code>替换成<code>开启优化循环引用模式</code>。
+
+&nbsp;
+
+3. 无用的逻辑，可以使用<code>NOE</code>或<code>END</code>作为装饰命令被忽略
 
 | Order | Target  | ==> | Order | Target  |
 |-------|---------|-----|-------|---------|
@@ -321,29 +335,56 @@ structure, where the target can be empty and the component automatically fills i
 
 &nbsp;
 
-3. 尽量避免利用循环引用制作触发器，寄存器，定时器  
+4. 尽量避免利用循环引用制作触发器，寄存器，定时器，同时也注意逻辑死区  
 
 如果可以的话，可以选择重载一个基于此组件的类，并移除掉父类的<code>BeginPlay</code>和<code>Tick</code>节点，这样父类会失去定时基础触发基础；  
 只要保持子类的逻辑表内容干净，一般其他引用到此的逻辑表不会无故开启<code>优化循环引用模式</code>。  
 再利用<code>布尔变量:逻辑状态</code>获取外部更改到此处的状态，理论上你可以继续扩展你的功能！
 
-如何创建一个锁存器：  
+##### 如何创建一个锁存器：  
+
 创建6个已经包含逻辑组件的<code>Actor</code>并放置在场景中，分别命名为
 <code>R_Target</code><code>S_Target</code><code>Logic1_Target</code><code>Logic2_Target</code><code>Q_Target1</code><code>Q_Target2</code>
 在这两个<code>Logic_Target</code>中分别写入逻辑：
 
-| Order | Target    | ==> | Order | Target    |
+| Order | Target    |     | Order | Target    |
 |-------|-----------|-----|-------|-----------|
 | LD    | R_Target  |     | LD    | S_Target  |
 | OR    | Q_Target2 |     | OR    | Q_Target1 |
 | INV   |           |     | INV   |           |
 | OUT   | Q_Target1 |     | OUT   | Q_Target2 |
 
-需要注意的是，这个操作由于并没有循环引用，是比较安全的操作。
+需要注意的是，这个操作由于并没有循环引用，是比较安全的操作，不过由于需要额外的触发更新逻辑，所以可能需要<code>开启优化循环引用模式</code>；  
+否则这样的逻辑一般就只能运行一次了，这种外部无论如何都无法触发更新的状态，我称呼为逻辑死区。
+
+| Order | Target        |     | Order | Target          |
+|-------|---------------|-----|-------|-----------------|
+| LD    | R_Target      |     | LD    | S_Target        |
+| OR    | Q_Target2     |     | OR    | Q_Target1       |
+| INV   |               |     | INV   |                 |
+| OUT   | Q_Target1     |     | OUT   | Q_Target2       |
+| NOE   | Logic2_Target |     | NOE   | Logic1_Target   |
+
+你可以在表中添加装饰指令来强制表<code>开启优化循环引用模式</code>，这样无论如何都不会进入逻辑死区。  
+装饰指令虽然会被忽略执行，但目标依然会作为引用进行计数，所以可以帮助我们脱离逻辑死区。
 
 🔼[回到顶部](#title)
 
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
 &nbsp;
+
+<a name="NiagaraSample"></a>
+### 逻辑收发集成组件使用
+
+
+🔼[回到顶部](#title)
+
+
+
+
 
 -----
 
