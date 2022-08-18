@@ -21,7 +21,7 @@
 <a name="file"></a>
 ## 文件结构
 
-
+> ## 源码目录
 > <code>GeneralPlugLibrary</code> *通用插件库*  
 >> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
 >>> 动态物品管理，静态物品管理，多形体碰撞管理，指令框选管理，物品条目布尔操作等  
@@ -29,17 +29,11 @@
 >>>  
 >> <code>TimeStopComponent</code> 时停组件 🕑  
 >>> 用于不同的时停策略，和引擎暂停类似，可以在确保全局物理正确的情况下排除任意对象制造时间膨胀，近似时停。  
->>>  &nbsp;  
->>>  
->> <code>VectorTrackingComponent</code> 角色矢量追踪 🕑  
->>> 检测角色运动轨迹，并在各个阶段产生回调事件，但与移动组件自带的到达跳跃顶点的稍微有点不同。  
->>>  可以检测运动矢量是否由重力主导，检测运动矢量沿重力平面翻转。
->>>  &nbsp;  
+>>>  &nbsp;
 >>>  
 >> <code>RandomNoiseExtractionSeparation</code> 抖动矢量追踪 🕑
 >>> 用于手柄角速度传感器复用输入，通过信号抖动与否来区分是否正在使用传感器输入，将手柄的挥舞动作作为事件输出，比如上下左右挥动，但考虑到性能问题，可能做不了更复杂的动作，比如画圆，画三角等；  
 >>> 复用输入是指这条信号通道（2d向量）上同时有多个输入设备，比如鼠标，手柄摇杆，手柄角速度传感器，键盘方向键等，将传感器信号与其他所有信号区分开就是它的工作了；
->>> 一般只是用来区分摇杆，鼠标和角速度，其中鼠标的输入较大时，对输出影响也较大，。
 >>>  &nbsp;
 >>>
 >> <code>AnimationPhysicsEffectorComponent</code> 动画驱动物理现象 🕑
@@ -50,9 +44,7 @@
 >> <code>[TriggerTransceiverIntegraionComponent](#TriggerTransceiverIntegraionComponent)</code> 逻辑收发集成组件 ❗
 >>> 使用逻辑类似PLC指令表，可以使用LD,LDI,OUT,INV,AND,ANI,OR,ORI,ANB,ORB,XOR,NOR,END,NOE这些基础指令与其他触发器组成指令结构，
 >>> 支持带有同类组件，触发器类，触发接口的方式设定指令，
->>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许我想可以囊括所有常用指令，关于如何编写PLC指令可以自行在网上搜索。  
->>> 为了避免发生无限循环，由指令表产生的输出不会通过设置指令触发其他指令表的计算。 
->>> 如果有必要进行多表协同计算，那么可以开启“针对无限循环优化”，这会将触发指令转到task上，等待全局同步结束后再一起计算，相应的，这会大幅提高响应时间。
+>>> 基于plc指令的特性可以完成一系列的与或非，块与或非，基本大概也许我想可以囊括所有常用指令，关于如何编写PLC指令可以自行在网上搜索。
 >>>  &nbsp;  
 >>>  
 >> <code>DebugPrintTool</code> 调试信息绘制工具 🕑  
@@ -223,7 +215,7 @@
 
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCSelect.png?raw=true" />
 
-
+以上节点示例可以在文件中找到，仅提供思路。
 
 🔼[回到顶部](#title)
 
@@ -242,7 +234,7 @@ Add this component where you want to use it, and the rest of the operations can 
 直接添加到组件列表中，并点击该组件进入组件细节面板，在组件细节面板中找到
 <code>接收与逻辑</code>
 ，在该折叠标题下可以看到当前默认的逻辑状态和逻辑流程；  
-默认逻辑为真，逻辑流程为空，这代表此组件现在仅作为
+默认自身逻辑为真，逻辑流程为空，这代表此组件现在仅作为
 <code>触发器信号</code>
 使用，如果在此组件列表中存在其他触发器组件，那么此组件会自动绑定到此触发器，否则需要额外使用逻辑来使用
 <code>触发信号</code>
@@ -256,32 +248,98 @@ structure, where the target can be empty and the component automatically fills i
 
 * Order List
 
-| Order | instruction                                                                                                                          | Target            | Description                                                                                                  |
-|-------|--------------------------------------------------------------------------------------------------------------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------|
-| LD    | Load the target logic and connect it directly to the bus                                                                             | necessary / self  | The LD can be used anywhere to create a new bus,All the instructions after that are on this new bus          |
-| LDI   | Same as the LD instruction, but inverts the Load logic                                                                               | necessary / self  | Same as the LD                                                                                               |
-| OUT   | Output the result of the current process or instruction block                                                                        | necessary / self  | The output does not indicate the end of the program, and you can still do other things after that            |
-| INV   | inverts pointer logic                                                                                                                | ignore            | pointer logic mean The logic on a pointer when a program pointer runs from top to bottom to the current line |
-| AND   | The output is true only if both the target logic and the pointer logic are true, otherwise any two are false and the output is false | necessary / self  |                                                                                                              |
-| ANI   | Same as the AND instruction, but inverts the Target logic                                                                            | necessary / self  |                                                                                                              |
-| ANB   | If there are more than one bus, this instruction will AND the existing pointer logic to the last instruction of the root bus         | ignore            |                                                                                                              |
-| OR    | If either of the target logic or pointer logic is true, the output is true                                                           | necessary / self  |                                                                                                              |
-| ORI   | Same as the OR instruction, but inverts the Target logic                                                                             | necessary / self  |                                                                                                              |
-| ORB   | If there are more than one bus, this instruction will OR the existing pointer logic to the last instruction of the root bus          | ignore            |                                                                                                              |
-| XOR   | Xor with the target logic                                                                                                            | necessary / self  | Just like a conditional inverse fetch, you can invert pointer logic when your target is true                                                                                                             |
-| NOR   | Nor with the target logic                                                                                                            | necessary / self  | Contrary to XOR                                                                                                             |
-| END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            | Manually added to a program forces the pointer to stop running                                                                                                             |
-| NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                              |
+| Order | instruction                                                                                                                          | Target            | Description                                                                                                   |
+|-------|--------------------------------------------------------------------------------------------------------------------------------------|-------------------|---------------------------------------------------------------------------------------------------------------|
+| LD    | Load the target logic and connect it directly to the bus                                                                             | necessary / self  | The LD can be used anywhere to create a new bus,All the instructions after that are on this new bus           |
+| LDI   | Same as the LD instruction, but inverts the Load logic                                                                               | necessary / self  | Same as the LD                                                                                                |
+| OUT   | Output the result of the current process or instruction block                                                                        | necessary / self  | The output does not indicate the end of the program, and you can still do other things after that             |
+| INV   | inverts pointer logic                                                                                                                | ignore            | pointer logic mean The logic on a pointer when a program pointer runs from top to bottom to the current line  |
+| AND   | The output is true only if both the target logic and the pointer logic are true, otherwise any two are false and the output is false | necessary / self  |                                                                                                               |
+| ANI   | Same as the AND instruction, but inverts the Target logic                                                                            | necessary / self  |                                                                                                               |
+| ANB   | If there are more than one bus, this instruction will AND the existing pointer logic to the last instruction of the root bus         | ignore            |                                                                                                               |
+| OR    | If either of the target logic or pointer logic is true, the output is true                                                           | necessary / self  |                                                                                                               |
+| ORI   | Same as the OR instruction, but inverts the Target logic                                                                             | necessary / self  |                                                                                                               |
+| ORB   | If there are more than one bus, this instruction will OR the existing pointer logic to the last instruction of the root bus          | ignore            |                                                                                                               |
+| XOR   | Xor with the target logic                                                                                                            | necessary / self  | Just like a conditional inverse fetch, you can invert pointer logic when your target is true                  |
+| NOR   | Nor with the target logic                                                                                                            | necessary / self  | Contrary to XOR                                                                                               |
+| END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            | Manually added to a program forces the pointer to stop running                                                |
+| NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                               |
 
-    使用英文只是为了表格的格式好看(身心愉悦)  
-    如果英文有错误或有误区的地方，请务必告知于我。  
-    Please let me know if there are any grammatical errors or misunderstandings in the English instructions.
-
-* 此逻辑表程序指令几乎在任何情况下都能使用，只有部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行；  
+* 此逻辑表程序指令几乎在任何情况下都能使用，只有极少部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行；  
+* 指令的目标可以空置，带有<code>self</code>标记的指令将会在没有目标时使用自身作为目标；  
 * 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
-无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个等待时间默认为500ms；
-而这段时间内如果还有其他赋值事件，则会全部记录，并按指定（与，或，最后时刻）运算，这是因为如果需要条件逻辑可以使用取指令，而不是赋值指令。
+无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个时间默认为500ms；
+而这段时间内如果还有其他赋值事件，则会全部记录，并按指定（与，或，最后时刻）运算，这是因为如果需要条件逻辑可以使用取指令，而不是赋值指令。  
 
+&nbsp;  
+
+#### 编写指令时需要注意的事项：
+
+1. 不明确的赋值顺序，目标不能作为公共变量使用
+
+| Order | Target  |
+|-------|---------|
+| LD    |         |
+| OUT   | Target1 |
+| ...   |         |
+| LD    | Target1 |
+| ANB   |         |
+| OUT   |         |
+
+这样写指令结构并无错误，所以不会报错，但如果当前组件模式是<code>优化循环引用模式</code>，第二个<code>LD command</code>读取的就是没有被<code>OUT command</code>赋值的状态；  
+相反，如果<code>未开启优化循环引用模式</code>，第二个<code>LD command</code>读取的就是<code>OUT command</code>赋值后的状态；
+还有种情况就是，<code>Target1</code>中的逻辑表在后续的运行中添加并引用了这里的逻辑表，那么双方都会在此时默认<code>开启优化循环引用模式</code>。  
+
+&nbsp;
+
+2. 无用的逻辑，可以使用<code>NOE</code>或<code>END</code>作为装饰命令被忽略
+
+| Order | Target  | ==> | Order | Target  |
+|-------|---------|-----|-------|---------|
+| LD    |         |     |       |         |
+| OR    | Target1 |     |       |         |
+| LD    | Target2 |     | LD    | Target2 |
+| AND   | Target2 |     |       |         | 
+| AND   | Target3 |     | AND   | Target3 |
+| LD    | Target4 |     | LD    | Target4 |
+| ANB   |         |     | ANB   |         |
+| OUT   |         |     | OUT   |         |
+| END   | Target4 |     | END   |         |
+| LD    | Target5 |     |       |         |
+| OUT   | Target1 |     |       |         |
+
+左边的指令等价于右边的指令
+
+虽然逻辑表的运算开销很小，但我不建议在表格里出现冗长的无效命令并不是因为效率问题，而是可阅读性；  
+当然就算写成左边表格的样式也没什么不对的，这点代码数量对性能影响微乎其微，只有当你的单个组件的代码数量接近8,000行时才应该注意性能问题；  
+无效的原因是<code>Block command</code>是从自己往上找最近的一个<code>LD command</code>进行合并，就像编程语言中的括号一样一层一层包裹起来的，
+而此处的<code>ANB command</code>只对应最后一个<code>LD command</code>，将其与第二个<code>LD command</code>后的程序进行块与，
+从而达到<code>Target2</code><code>AND</code><code>Target3</code><code>AND</code><code>Target4</code>然后输出的结果。  
+
+可能还有一些没能想到的情况，但是不要紧，逻辑表的原理十分简单，无论是自己动手修改，或是使用其他逻辑代替都是完全没有问题的；  
+所用到的知识应该与PLC的编程指令一样，我就不过多赘述了。
+
+&nbsp;
+
+3. 尽量避免利用循环引用制作触发器，寄存器，定时器  
+
+如果可以的话，可以选择重载一个基于此组件的类，并移除掉父类的<code>BeginPlay</code>和<code>Tick</code>节点，这样父类会失去定时基础触发基础；  
+只要保持子类的逻辑表内容干净，一般其他引用到此的逻辑表不会无故开启<code>优化循环引用模式</code>。  
+再利用<code>布尔变量:逻辑状态</code>获取外部更改到此处的状态，理论上你可以继续扩展你的功能！
+
+如何创建一个锁存器：  
+创建6个已经包含逻辑组件的<code>Actor</code>并放置在场景中，分别命名为
+<code>R_Target</code><code>S_Target</code><code>Logic1_Target</code><code>Logic2_Target</code><code>Q_Target1</code><code>Q_Target2</code>
+在这两个<code>Logic_Target</code>中分别写入逻辑：
+
+| Order | Target    | ==> | Order | Target    |
+|-------|-----------|-----|-------|-----------|
+| LD    | R_Target  |     | LD    | S_Target  |
+| OR    | Q_Target2 |     | OR    | Q_Target1 |
+| INV   |           |     | INV   |           |
+| OUT   | Q_Target1 |     | OUT   | Q_Target2 |
+
+需要注意的是，这个操作由于并没有循环引用，是比较安全的操作。
 
 🔼[回到顶部](#title)
 
@@ -293,6 +351,8 @@ structure, where the target can be empty and the component automatically fills i
 ## 更新
 
 变成插件乐（  
+
+(0/1) 节点示例
 
 &nbsp;
 
