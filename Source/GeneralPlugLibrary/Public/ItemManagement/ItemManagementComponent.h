@@ -28,7 +28,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnV5ChangeArrayLessSignature, TArra
 
 
 UCLASS( Blueprintable, 
-	ClassGroup=(ItemManagement), 
+	ClassGroup=(GeneralPlugLibrary),
 	meta = (BlueprintSpawnableComponent),
 	meta = (ToolTip = "物品管理组件")
 )
