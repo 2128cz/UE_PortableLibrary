@@ -3,12 +3,15 @@
 
 [](#https://github.com/2128cz/UE_PortableLibrary)
 
+已经是插件结构了，可以直接使用
+
 &nbsp;
 
 **目录**
 > 1. [文件结构](#file)
 >> [物品管理组件函数列表](#ItemManagementComponent)  
 >> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
+>> [任务系统](#NiagaraSample)
 > 2. [更新](#update)
 > 1. [如何解决报错](#error)
 
@@ -47,8 +50,8 @@
 >>> 扩展调试绘制信息，可以绘制扭转箭头，绘制变换矩阵，绘制简单视锥，绘制虚线，绘制抛物线。  
 >>>  &nbsp;  
 >>>
->>  <code>[NiagaraSample](#NiagaraSample)</code>粒子系统示例 ❗
->>> 一些流体模拟系统。  
+>>  <code>[MissionSystems](#MissionSystems)</code>任务系统 ❗
+>>> 独特的资产系统。  
 >>>  &nbsp;
 >>>
 > 
@@ -57,7 +60,7 @@
 -----
 
 <a name="ItemManagementComponent"></a>
-### 物品管理组件函数列表  
+## 物品管理组件函数列表  
 
 &nbsp;
 
@@ -189,7 +192,7 @@
 
 &nbsp;
 
-#### 如何使用
+### 如何使用
 
 &nbsp;
 
@@ -204,7 +207,10 @@
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCBPShow2.png?raw=true" />
 
 其中左侧输入来自<code>Receive Draw HUD</code>，但无需担心重复调用，左上角的宏仅用作后续的选框绘制，而接入鼠标按键的目的是在合适的时机进行绘制并共享局部变量。  
-需要注意的是，在现在的插件中的程序很可能与图片中展示的节点有所不同，比如我取消了对<code>布尔容器4</code>的自动清理选项，因为一般情况下对此进行操作显得毫无意义；  
+
+    需要注意的是，在现在的插件中的程序很可能与图片中展示的节点有所不同；
+    比如我取消了对 布尔容器4 的自动清理选项，因为一般情况下对此进行操作显得毫无意义；  
+
 以上节点使用少量的功能即可完成框选功能，此时你可以在<code>布尔容器4</code>中找到所有已框选的对象，而<code>即时容器5</code>的作用是可以在框选中对框选下的对象进行浏览；
 如果此时使用调试，或是用高亮显示的方式来进行查看，会发现框选的对象向释放后框选对象进行转变时会额外产生一次事件，为了消除这个事件，需要用到<code>即时容器5</code>的传送功能，
 作为传送的对象可以在转移到<code>布尔容器4</code>时避免产生事件，同时彻底清除遗留在<code>即时容器5</code>的引用，就像这样：
@@ -217,6 +223,8 @@
 
 以上节点示例可以在文件中找到，仅提供思路。
 
+&nbsp;
+
 🔼[回到顶部](#title)
 
 &nbsp;  
@@ -226,7 +234,7 @@
 &nbsp;
 
 <a name="TriggerTransceiverIntegraionComponent"></a>
-### 逻辑收发集成组件使用
+## 逻辑收发集成组件使用
 
 Add this component where you want to use it, and the rest of the operations can be set directly from the details panel
 
@@ -238,7 +246,7 @@ Add this component where you want to use it, and the rest of the operations can 
 <code>触发器信号</code>
 使用，如果在此组件列表中存在其他触发器组件，那么此组件会自动绑定到此触发器，否则需要额外使用逻辑来使用
 <code>触发信号</code>
-；  
+；
 
 * How to use Logical flow sheet  
 A logical flow sheet uses an
@@ -265,7 +273,8 @@ structure, where the target can be empty and the component automatically fills i
 | END   | Normally, you don't need to use this instruction, it's automatically added to the end of the program                                 | ignore            | Manually added to a program forces the pointer to stop running                                                |
 | NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                               |
 
-* 此逻辑表程序指令几乎在任何情况下都能使用，只有极少部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行；  
+* 此逻辑指令来源于PLC指令，原理也基本一致，我认为直接查看PLC指令原理可以更好的学习；  
+* 此逻辑表程序指令几乎在任何情况下都能使用，只有极少部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行（指不会崩溃）；
 * 指令的目标可以空置，带有<code>self</code>标记的指令将会在没有目标时使用自身作为目标；  
 * 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
 无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个时间默认为500ms；
@@ -273,7 +282,7 @@ structure, where the target can be empty and the component automatically fills i
 
 &nbsp;  
 
-#### 编写指令时需要注意的事项：
+### 编写指令时需要注意的事项：
 
 1. 不明确的赋值顺序，目标不能作为公共变量使用
 
@@ -293,14 +302,19 @@ structure, where the target can be empty and the component automatically fills i
 
 2. 关于优化循环引用模式  
 
+优化循环引用在开启后组件将可以支持异步运行，触发模式运行等更多功能，  
+但普通的触发器结构不需要循环引用，因为这会导致随机的延后现象；  
+
+如果仅仅只是用这个组件做个按按钮开门的动作，那么就不需要开启优化；
+
 考虑到运行中途如果检测到循环引用后导致<code>优化循环引用模式</code>的变更会很突兀，所以如果用户使用转义程序动态添加程序后，
 需要手动顺序调用<code>初始化逻辑表</code><code>检查指令循环引用</code>这两个函数，并检查指定深度的循环引用  
 
     如果没有额外定义，那么组件默认只检查1个深度的循环引用，它的本质就是广度优先的树状递归，
     深度不能太大，以免检查的太频繁反而被引擎断言；
 
-    当然更简单的方式是将父类的 BeginPlay 用作初始化使用，
-    父类函数其实可以在子类的任何地方进行调用，也可以调用多个父类函数，作为用户检测方案也是一个不错的选择。
+    当然更简单的方式是将父类的 BeginPlay 用作检查使用，
+    父项函数也可以在子类的任何地方进行调用，也可以调用多个父项函数，用法和普通继承函数一样。
 
 当然如果不需要组件运算的实时性的话，可以直接将<code>检查指令循环引用</code>替换成<code>开启优化循环引用模式</code>。
 
@@ -328,10 +342,7 @@ structure, where the target can be empty and the component automatically fills i
 当然就算写成左边表格的样式也没什么不对的，这点代码数量对性能影响微乎其微，只有当你的单个组件的代码数量接近8,000行时才应该注意性能问题；  
 无效的原因是<code>Block command</code>是从自己往上找最近的一个<code>LD command</code>进行合并，就像编程语言中的括号一样一层一层包裹起来的，
 而此处的<code>ANB command</code>只对应最后一个<code>LD command</code>，将其与第二个<code>LD command</code>后的程序进行块与，
-从而达到<code>Target2</code><code>AND</code><code>Target3</code><code>AND</code><code>Target4</code>然后输出的结果。  
-
-可能还有一些没能想到的情况，但是不要紧，逻辑表的原理十分简单，无论是自己动手修改，或是使用其他逻辑代替都是完全没有问题的；  
-所用到的知识应该与PLC的编程指令一样，我就不过多赘述了。
+从而达到<code>Target2</code><code>AND</code><code>Target3</code><code>AND</code><code>Target4</code>然后输出的结果。
 
 &nbsp;
 
@@ -341,7 +352,7 @@ structure, where the target can be empty and the component automatically fills i
 只要保持子类的逻辑表内容干净，一般其他引用到此的逻辑表不会无故开启<code>优化循环引用模式</code>。  
 再利用<code>布尔变量:逻辑状态</code>获取外部更改到此处的状态，理论上你可以继续扩展你的功能！
 
-##### 如何创建一个锁存器：  
+#### 如何创建一个锁存器：  
 
 创建6个已经包含逻辑组件的<code>Actor</code>并放置在场景中，分别命名为
 <code>R_Target</code><code>S_Target</code><code>Logic1_Target</code><code>Logic2_Target</code><code>Q_Target1</code><code>Q_Target2</code>
@@ -354,8 +365,9 @@ structure, where the target can be empty and the component automatically fills i
 | INV   |           |     | INV   |           |
 | OUT   | Q_Target1 |     | OUT   | Q_Target2 |
 
-需要注意的是，这个操作由于并没有循环引用，是比较安全的操作，不过由于需要额外的触发更新逻辑，所以可能需要<code>开启优化循环引用模式</code>；  
-否则这样的逻辑一般就只能运行一次了，这种外部无论如何都无法触发更新的状态，我称呼为逻辑死区。
+需要注意的是，这个操作由于并没有循环引用，是比较安全的操作，
+不过在首次运行后再次运行时需要额外的触发更新逻辑，所以还是需要<code>开启优化循环引用模式</code>，否则这样的逻辑一般就只能运行一次了；  
+这种外部无论如何都无法触发更新的状态，我称呼为“逻辑死区”。
 
 | Order | Target        |     | Order | Target          |
 |-------|---------------|-----|-------|-----------------|
@@ -365,8 +377,11 @@ structure, where the target can be empty and the component automatically fills i
 | OUT   | Q_Target1     |     | OUT   | Q_Target2       |
 | NOE   | Logic2_Target |     | NOE   | Logic1_Target   |
 
-你可以在表中添加装饰指令来强制表<code>开启优化循环引用模式</code>，这样无论如何都不会进入逻辑死区。  
+你可以在表中添加装饰指令来强制表<code>开启优化循环引用模式</code>，这样无论如何都不会进入逻辑死区（理论上）。  
 装饰指令虽然会被忽略执行，但目标依然会作为引用进行计数，所以可以帮助我们脱离逻辑死区。
+
+&nbsp;
+&nbsp;
 
 🔼[回到顶部](#title)
 
@@ -376,15 +391,42 @@ structure, where the target can be empty and the component automatically fills i
 &nbsp;  
 &nbsp;
 
-<a name="NiagaraSample"></a>
-### 逻辑收发集成组件使用
+<a name="MissionSystems"></a>
+## 任务系统
+ 
+任务系统结构
 
+1. [创建任务](#creatSystem)
+2. [模板系统](#ReuseSystem)
+3. [任务与蓝图](#MissionSystemAndBP)
+
+&nbsp;
+
+<a name="creatSystem"></a>
+### 创建任务
+。
+
+&nbsp;
+
+<a name="ReuseSystem"></a>
+### 模板系统
+。
+
+&nbsp;
+
+<a name="MissionSystemAndBP"></a>
+### 任务与蓝图
+。
+
+&nbsp;
 
 🔼[回到顶部](#title)
 
-
-
-
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;  
+&nbsp;
 
 -----
 
