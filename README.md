@@ -3,14 +3,14 @@
 
 [](#https://github.com/2128cz/UE_PortableLibrary)
 
-已经是插件结构了，可以直接使用
+
 
 &nbsp;
 
 **目录**
 > 1. [文件结构](#file)
 >> [物品管理组件函数列表](#ItemManagementComponent)  
->> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)
+>> [逻辑收发集成组件使用](#TriggerTransceiverIntegraionComponent)  
 >> [任务系统](#NiagaraSample)
 > 2. [更新](#update)
 > 1. [如何解决报错](#error)
