@@ -3,6 +3,9 @@
 
 [](#https://github.com/2128cz/UE_PortableLibrary)
 
+**使用须知**  
+此插件仅包含源码，想要使用需要让UHT生成反射文件，
+
 
 
 &nbsp;
@@ -22,10 +25,12 @@
 &nbsp;
 
 <a name="file"></a>
-## 文件结构
+# 文件结构  
 
-> ## 源码目录
-> <code>Plugins</code>插件根目录，和引擎下插件源码目录同名
+**源码目录**  
+
+> <code>Plugins</code>插件根目录
+> &nbsp;
 >> <code>GeneralPlugLibrary</code> **通用插件库** 插件文件
 >>> <code>[ItemManagementComponent](#ItemManagementComponent)</code> 物品管理组件 ✔
 >>>> 动态物品管理，静态物品管理，多形体碰撞管理，指令框选管理，物品条目布尔操作等  
@@ -53,7 +58,7 @@
 >>>>
 > &nbsp;
 >>  <code>[MissionSystems](#MissionSystems)</code>**任务系统** 插件文件 ❗
->>> 独特的资产系统。  
+>>> 独特的资产系统，因为和库文件不是一类所以并没有作为一个插件下的两个模块进行创建。  
 >>>  &nbsp;
 >>>
 > 
@@ -223,7 +228,8 @@
 
 <img src="https://github.com/2128cz/UE_PortableLibrary/blob/main/Resources/IMCSelect.png?raw=true" />
 
-以上节点示例可以在文件中找到，仅提供思路。
+以上节点示例可以在文件中找到，仅提供思路，
+像快捷键编组之类的功能之后再说吧。
 
 &nbsp;
 
@@ -276,17 +282,20 @@ structure, where the target can be empty and the component automatically fills i
 | NOE   | Empty command, ignore the target here                                                                                                | ignore            |                                                                                                               |
 
 * 此逻辑指令来源于PLC指令，原理也基本一致，我认为直接查看PLC指令原理可以更好的学习；  
-* 此逻辑表程序指令几乎在任何情况下都能使用，只有极少部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行（指不会崩溃）；
+* 此逻辑表程序指令几乎在任何情况下都能使用，只有极少部分情况下会产生报错，程序的错误不会产生任何不利的影响，也不会影响其他程序运行（指不会崩溃）；  
 * 指令的目标可以空置，带有<code>self</code>标记的指令将会在没有目标时使用自身作为目标；  
-* 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
-无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个时间默认为500ms；
-而这段时间内如果还有其他赋值事件，则会全部记录，并按指定（与，或，最后时刻）运算，这是因为如果需要条件逻辑可以使用取指令，而不是赋值指令。  
+* 如果你的使用场景含有：可能存在的循环引用、被多个逻辑表指向的逻辑表之类多个输入多输出的结构，那么这时应该开启“针对无限循环优化”，
+你不需要将所有表格都开启优化选项，其他引用这张表的逻辑表会自动同步这项功能；  
+* 无限循环优化将赋值事件延后，并在全局等待触发，避免在一个时刻内产生大量的往复调用，这个时间默认为500ms；
+而这段时间内如果还有其他赋值事件，则会按或运算。
 
 &nbsp;  
 
 ### 编写指令时需要注意的事项：
 
-1. 不明确的赋值顺序，目标不能作为公共变量使用
+&nbsp;
+
+* 不明确的赋值顺序，目标不能作为公共变量使用
 
 | Order | Target  |
 |-------|---------|
@@ -297,32 +306,12 @@ structure, where the target can be empty and the component automatically fills i
 | ANB   |         |
 | OUT   |         |
 
-这样写指令结构并无错误，所以不会报错，但如果当前组件模式是<code>优化循环引用模式</code>，第二个<code>LD command</code>读取的就是没有被<code>OUT command</code>赋值的状态；  
-相反，如果<code>未开启优化循环引用模式</code>，第二个<code>LD command</code>读取的就是<code>OUT command</code>赋值后的状态；  
+这样写指令结构并无错误，所以不会报错，
+但一个目标同时作为输入和输出进行操作时，为了规范取值方向，计算时的逻辑取值统一使用计算前的数值，不论当前状态如何；
 
 &nbsp;
 
-2. 关于优化循环引用模式  
-
-优化循环引用在开启后组件将可以支持异步运行，触发模式运行等更多功能，  
-但普通的触发器结构不需要循环引用，因为这会导致随机的延后现象；  
-
-如果仅仅只是用这个组件做个按按钮开门的动作，那么就不需要开启优化；
-
-考虑到运行中途如果检测到循环引用后导致<code>优化循环引用模式</code>的变更会很突兀，所以如果用户使用转义程序动态添加程序后，
-需要手动顺序调用<code>初始化逻辑表</code><code>检查指令循环引用</code>这两个函数，并检查指定深度的循环引用  
-
-    如果没有额外定义，那么组件默认只检查1个深度的循环引用，它的本质就是广度优先的树状递归，
-    深度不能太大，以免检查的太频繁反而被引擎断言；
-
-    当然更简单的方式是将父类的 BeginPlay 用作检查使用，
-    父项函数也可以在子类的任何地方进行调用，也可以调用多个父项函数，用法和普通继承函数一样。
-
-当然如果不需要组件运算的实时性的话，可以直接将<code>检查指令循环引用</code>替换成<code>开启优化循环引用模式</code>。
-
-&nbsp;
-
-3. 无用的逻辑，可以使用<code>NOE</code>或<code>END</code>作为装饰命令被忽略
+* 无用的逻辑，可以使用<code>NOE</code>或<code>END</code>作为装饰命令被忽略
 
 | Order | Target  | ==> | Order | Target  |
 |-------|---------|-----|-------|---------|
@@ -338,26 +327,16 @@ structure, where the target can be empty and the component automatically fills i
 | LD    | Target5 |     |       |         |
 | OUT   | Target1 |     |       |         |
 
-左边的指令等价于右边的指令
-
-虽然逻辑表的运算开销很小，但我不建议在表格里出现冗长的无效命令并不是因为效率问题，而是可阅读性；  
-当然就算写成左边表格的样式也没什么不对的，这点代码数量对性能影响微乎其微，只有当你的单个组件的代码数量接近8,000行时才应该注意性能问题；  
-无效的原因是<code>Block command</code>是从自己往上找最近的一个<code>LD command</code>进行合并，就像编程语言中的括号一样一层一层包裹起来的，
-而此处的<code>ANB command</code>只对应最后一个<code>LD command</code>，将其与第二个<code>LD command</code>后的程序进行块与，
-从而达到<code>Target2</code><code>AND</code><code>Target3</code><code>AND</code><code>Target4</code>然后输出的结果。
+**左边的指令等价于右边的指令**  
+当然就算写成左边表格的样式也没什么不对的，这点代码数量对性能影响微乎其微；
 
 &nbsp;
 
-4. 尽量避免利用循环引用制作触发器，寄存器，定时器，同时也注意逻辑死区  
+* 创建一个锁存器
 
-如果可以的话，可以选择重载一个基于此组件的类，并移除掉父类的<code>BeginPlay</code>和<code>Tick</code>节点，这样父类会失去定时基础触发基础；  
-只要保持子类的逻辑表内容干净，一般其他引用到此的逻辑表不会无故开启<code>优化循环引用模式</code>。  
-再利用<code>布尔变量:逻辑状态</code>获取外部更改到此处的状态，理论上你可以继续扩展你的功能！
-
-#### 如何创建一个锁存器：  
-
-创建6个已经包含逻辑组件的<code>Actor</code>并放置在场景中，分别命名为
+创建6个已经包含逻辑组件的<code>Actor</code>并放置在场景中，分别取名为
 <code>R_Target</code><code>S_Target</code><code>Logic1_Target</code><code>Logic2_Target</code><code>Q_Target1</code><code>Q_Target2</code>
+（当然不改名字也行）  
 在这两个<code>Logic_Target</code>中分别写入逻辑：
 
 | Order | Target    |     | Order | Target    |
@@ -367,22 +346,26 @@ structure, where the target can be empty and the component automatically fills i
 | INV   |           |     | INV   |           |
 | OUT   | Q_Target1 |     | OUT   | Q_Target2 |
 
-需要注意的是，这个操作由于并没有循环引用，是比较安全的操作，
-不过在首次运行后再次运行时需要额外的触发更新逻辑，所以还是需要<code>开启优化循环引用模式</code>，否则这样的逻辑一般就只能运行一次了；  
-这种外部无论如何都无法触发更新的状态，我称呼为“逻辑死区”。
-
-| Order | Target        |     | Order | Target          |
-|-------|---------------|-----|-------|-----------------|
-| LD    | R_Target      |     | LD    | S_Target        |
-| OR    | Q_Target2     |     | OR    | Q_Target1       |
-| INV   |               |     | INV   |                 |
-| OUT   | Q_Target1     |     | OUT   | Q_Target2       |
-| NOE   | Logic2_Target |     | NOE   | Logic1_Target   |
-
-你可以在表中添加装饰指令来强制表<code>开启优化循环引用模式</code>，这样无论如何都不会进入逻辑死区（理论上）。  
-装饰指令虽然会被忽略执行，但目标依然会作为引用进行计数，所以可以帮助我们脱离逻辑死区。
+需要注意的是，这个操作由于并没有循环引用，是比较安全的操作；
 
 &nbsp;
+
+* 避免利用循环引用制作触发器，寄存器，定时器
+
+在上面的制作锁存器中，根据逻辑触发原理，想要更好的运行，你可以将<code>R_Target</code>中写一个取反的逻辑表用来设置<code>S_Target</code>的值保持反相，
+而如果想要额外的逻辑时，可以选择重载一个基于此组件的类，并移除掉父类的<code>BeginPlay</code>和<code>Tick</code>节点，父类会因此失去定时基础触发基础，
+这样你就获得一个和普通组件无异的逻辑表组件了。  
+不过这样对于其他逻辑表来说并不公平，所以我推荐你可以重载以下函数：<code>逻辑状态取值</code>、<code>逻辑状态更新</code>、<code>指令表计算</code>，
+以及事件<code>逻辑表触发更新</code>、<code>逻辑状态赋值</code>。  
+
+&nbsp;
+
+
+* 在运行中销毁逻辑表组件  
+
+运行中的逻辑表如果仅销毁组件，或是连同继承者也一同销毁时，会导致其他逻辑表产生运行错误，此时会默认忽略错误继续执行，而错误的取值会为假；  
+并会产生一个错误事件，以供运行中调用，
+
 &nbsp;
 
 🔼[回到顶部](#title)
@@ -435,7 +418,9 @@ structure, where the target can be empty and the component automatically fills i
 <a name="update"></a>
 ## 更新
 
-变成插件乐（  
+* 优化了逻辑表的读取操作，现在读取时不论双方是否已经完成运算，都会选择更稳定的值。
+* 优化了逻辑表的更新行为，现在不会进入“逻辑死区”了。
+* 优化了逻辑表的运算，默认情况下会使用响应更快速的渐稳触发，而不是同步触发。
 
 (0/1) 节点示例
 
